@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(to bottom, #3a0ca3, #000000);
+    background: linear-gradient(to bottom, #2E8B57, #3CB371); /* Приглушенный зеленый градиент */
     color: #fff;
     text-align: center;
 }
