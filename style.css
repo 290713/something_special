@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(to bottom, #2E8B57, #3CB371); /* Приглушенный зеленый градиент */
+    background: linear-gradient(to bottom, #191970, #4682B4); /* Цвет фона, аналогичный цвету в квадрате */
     color: #fff;
     text-align: center;
 }
@@ -13,8 +13,7 @@ body {
 }
 
 .hero {
-    background: rgba(0, 0, 0, 0.5);
-    padding: 100px 0;
+    padding: 50px 0;
     margin-bottom: 30px;
     color: #fff;
 }
