@@ -31,7 +31,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var audio = document.getElementById('background-music');
-            audio.play().catch(function (e) {
+            audio.muted = true; 
+            audio.play().then(() => {
+                audio.muted = false;
+            }).catch(function (e) {
                 console.log('Audio playback failed: ' + e);
             });
         });
