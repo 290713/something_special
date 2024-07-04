@@ -27,9 +27,17 @@
             <img src="assets/images/ticket2.png" alt="Ticket 2">
         </div>
     </div>
-    <audio autoplay>
+    <audio id="background-music" loop>
         <source src="assets/music/smoke_on_the_water.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var audio = document.getElementById('background-music');
+            audio.play().catch(function (e) {
+                console.log('Audio playback failed: ' + e);
+            });
+        });
+    </script>
 </body>
 </html>
