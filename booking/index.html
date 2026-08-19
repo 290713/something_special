@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="sr-Latn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zakazivanje termina · Elena Bjelobrković Photography</title>
+<meta name="description" content="Zakažite termin fotografisanja: izaberite vrstu snimanja, paket, datum i vrijeme.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero">
+  <p class="hero__eyebrow" id="studio-name">Elena Bjelobrković Photography</p>
+  <h1 class="hero__title">Zakazivanje termina</h1>
+  <p class="hero__text">
+    Izaberite vrstu snimanja i paket, zatim datum i vrijeme koje vam odgovara.
+    Javljam se lično da potvrdimo sve detalje.
+  </p>
+</header>
+
+<div class="summary" id="summary" hidden>
+  <div class="summary__inner" id="summary-items"></div>
+</div>
+
+<main class="wrap">
+
+  <!-- 1 · vrsta snimanja -->
+  <section class="step" id="step-type" aria-labelledby="h-type">
+    <h2 class="step__title" id="h-type"><span class="step__num">1</span> Vrsta snimanja</h2>
+    <div class="cards" id="type-list"></div>
+  </section>
+
+  <!-- 2 · paket -->
+  <section class="step" id="step-package" aria-labelledby="h-package" hidden>
+    <h2 class="step__title" id="h-package"><span class="step__num">2</span> Paket</h2>
+    <p class="step__lead" id="type-description"></p>
+    <div class="packages" id="package-list"></div>
+    <ul class="notes" id="type-notes"></ul>
+    <p class="extras" id="type-extras" hidden></p>
+  </section>
+
+  <!-- 3 · datum -->
+  <section class="step" id="step-date" aria-labelledby="h-date" hidden>
+    <h2 class="step__title" id="h-date"><span class="step__num">3</span> Datum</h2>
+    <div class="cal">
+      <div class="cal__head">
+        <button type="button" class="cal__nav" id="cal-prev" aria-label="Prethodni mjesec">←</button>
+        <span class="cal__month" id="cal-month" aria-live="polite"></span>
+        <button type="button" class="cal__nav" id="cal-next" aria-label="Sljedeći mjesec">→</button>
+      </div>
+      <div class="cal__weekdays" aria-hidden="true">
+        <span>pon</span><span>uto</span><span>sri</span><span>čet</span><span>pet</span><span>sub</span><span>ned</span>
+      </div>
+      <div class="cal__grid" id="cal-grid"></div>
+      <p class="cal__hint" id="cal-hint"></p>
+    </div>
+  </section>
+
+  <!-- 4 · vrijeme -->
+  <section class="step" id="step-time" aria-labelledby="h-time" hidden>
+    <h2 class="step__title" id="h-time"><span class="step__num">4</span> Vrijeme</h2>
+    <div class="slots" id="slot-list"></div>
+    <p class="empty" id="slot-empty" hidden>Za izabrani datum nema slobodnih termina. Molim vas izaberite drugi dan.</p>
+  </section>
+
+  <!-- 5 · podaci -->
+  <section class="step" id="step-form" aria-labelledby="h-form" hidden>
+    <h2 class="step__title" id="h-form"><span class="step__num">5</span> Vaši podaci</h2>
+    <form id="booking-form" novalidate>
+      <div class="field">
+        <label for="f-name">Ime i prezime <span aria-hidden="true">*</span></label>
+        <input id="f-name" name="name" type="text" autocomplete="name" required>
+        <p class="err" data-err="name" hidden>Molim vas unesite ime i prezime.</p>
+      </div>
+      <div class="field">
+        <label for="f-phone">Telefon / WhatsApp <span aria-hidden="true">*</span></label>
+        <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required>
+        <p class="err" data-err="phone" hidden>Molim vas unesite broj telefona.</p>
+      </div>
+      <div class="field">
+        <label for="f-email">E-mail <span aria-hidden="true">*</span></label>
+        <input id="f-email" name="email" type="email" autocomplete="email" required>
+        <p class="err" data-err="email" hidden>Molim vas unesite ispravnu e-mail adresu.</p>
+      </div>
+      <div class="field">
+        <label for="f-message">Poruka <span class="opt">(nije obavezno)</span></label>
+        <textarea id="f-message" name="message" rows="3"
+          placeholder="Uzrast djeteta, sedmica trudnoće, lokacija događaja, posebne želje…"></textarea>
+      </div>
+      <div class="field field--check">
+        <input id="f-consent" name="consent" type="checkbox" required>
+        <label for="f-consent">Saglasan/na sam da se moji podaci koriste radi dogovora oko termina.</label>
+        <p class="err" data-err="consent" hidden>Potrebna je saglasnost.</p>
+      </div>
+
+      <p class="form-error" id="form-error" hidden></p>
+      <button type="submit" class="btn" id="submit-btn">Pošalji zahtjev</button>
+      <p class="fineprint">Termin je rezervisan tek nakon moje potvrde.</p>
+    </form>
+  </section>
+
+  <!-- uspjeh -->
+  <section class="success" id="screen-success" hidden aria-live="polite">
+    <div class="success__mark" aria-hidden="true">✿</div>
+    <h2>Hvala vam!</h2>
+    <p id="success-text">Vaš zahtjev je poslat. Javljam se u najkraćem roku da potvrdimo termin.</p>
+    <dl class="success__list" id="success-summary"></dl>
+    <div class="success__actions">
+      <button type="button" class="btn btn--ghost" id="ics-btn">Dodaj u svoj kalendar</button>
+      <button type="button" class="btn btn--ghost" id="restart-btn">Zakaži još jedan termin</button>
+    </div>
+    <p class="success__contact" id="success-contact"></p>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p id="foot-name">Elena Bjelobrković Photography</p>
+  <p id="foot-contact"></p>
+</footer>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
