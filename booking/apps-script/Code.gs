@@ -1,8 +1,9 @@
 /**
  * Приём заявок с сайта записи:
  *   — событие в Google Календаре;
- *   — уведомление вам в Telegram и на почту;
- *   — письмо клиенту сразу и напоминание за 2 дня до съёмки.
+ *   — уведомление вам в Telegram и на почту сразу после заявки;
+ *   — напоминание вам за 2 дня до съёмки, с контактами клиента.
+ * Клиенту скрипт ничего не пишет — вы связываетесь с ним сами.
  *
  * Как подключить — по шагам в booking/README.md.
  * Ниже нужно проверить только блок НАСТРОЙКИ.
@@ -27,18 +28,19 @@ var BUFFER_MIN = 15;
 var TELEGRAM_BOT_TOKEN = '';
 var TELEGRAM_CHAT_ID = '';
 
-// Подпись в письмах клиенту: имя и телефон для связи.
-var SIGNATURE_NAME = 'Elena Bjelobrković Photography';
-var CONTACT_PHONE = '+382 67 841 779';
+// --- Напоминание вам о предстоящих съёмках ---
+var REMIND_ME_BEFORE = true;           // присылать напоминание перед съёмкой
+var REMINDER_DAYS_BEFORE = 2;          // за сколько дней напоминать
+var REMINDER_HOUR = 10;                // в котором часу присылать напоминание
 
 // --- Письма клиенту ---
-var SEND_CLIENT_CONFIRMATION = true;   // письмо сразу после записи
-var SEND_CLIENT_REMINDER = true;       // напоминание перед съёмкой
-var REMINDER_DAYS_BEFORE = 2;          // за сколько дней напоминать
-var REMINDER_HOUR = 10;                // в котором часу отправлять напоминания
+// Выключено: с клиентом вы связываетесь сами. Поставьте true, если передумаете.
+var SEND_CLIENT_CONFIRMATION = false;  // письмо клиенту сразу после записи
+var INVITE_CLIENT = false;             // приглашение клиенту в событие календаря
 
-// Приглашать ли клиента в событие календаря (он получит приглашение от Google).
-var INVITE_CLIENT = false;
+// Подпись в письмах клиенту (используется, только если включено письмо выше).
+var SIGNATURE_NAME = 'Elena Bjelobrković Photography';
+var CONTACT_PHONE = '+382 67 841 779';
 
 /* ================= КОД (менять не нужно) ================= */
 
@@ -234,9 +236,6 @@ function notifyClient(data) {
     'Vrijeme: ' + data.time + ' – ' + data.endTime,
     '',
     'Javljam se u najkraćem roku da potvrdimo sve detalje.',
-    SEND_CLIENT_REMINDER
-      ? 'Podsjetnik ćete dobiti na e-mail ' + REMINDER_DAYS_BEFORE + ' dana prije termina.'
-      : '',
     '',
     'Srdačan pozdrav,',
     signature()
@@ -245,17 +244,22 @@ function notifyClient(data) {
   MailApp.sendEmail(data.email, subject, body);
 }
 
+/* ---------------------- напоминание вам ---------------------- */
+
 /**
- * Напоминания клиентам. Запускается автоматически раз в день —
+ * Напоминание вам о съёмках, до которых осталось REMINDER_DAYS_BEFORE дней:
+ * по одному сообщению на съёмку, с контактами клиента и кнопкой WhatsApp,
+ * чтобы вы могли написать ему сами. Запускается раз в день —
  * триггер ставится функцией installReminderTrigger (см. README).
  */
 function sendReminders() {
-  if (!SEND_CLIENT_REMINDER) return;
+  if (!REMIND_ME_BEFORE) return;
 
   var today = new Date();
   var target = new Date(today.getFullYear(), today.getMonth(), today.getDate() + REMINDER_DAYS_BEFORE);
   var dayEnd = new Date(target.getTime() + 86400000);
-  var sent = 0;
+  var date = Utilities.formatDate(target, TIMEZONE, 'dd.MM.yyyy');
+  var forEmail = [];
 
   getCalendar().getEvents(target, dayEnd).forEach(function (ev) {
     var raw = ev.getTag('booking');
@@ -263,36 +267,51 @@ function sendReminders() {
 
     var booking;
     try { booking = JSON.parse(raw); } catch (err) { return; }
-    if (!booking.email) return;
 
-    var date = Utilities.formatDate(ev.getStartTime(), TIMEZONE, 'dd.MM.yyyy');
     var time = Utilities.formatDate(ev.getStartTime(), TIMEZONE, 'HH:mm');
-    var body = [
-      'Poštovani/a ' + booking.name + ',',
-      '',
-      'podsjećam vas na naše fotografisanje:',
-      '',
-      'Vrsta fotografisanja: ' + booking.typeName,
-      'Paket: ' + booking.packageName,
-      'Datum: ' + date + ' u ' + time,
-      '',
-      'Ako vam nešto iskrsne, javite mi na vrijeme da pomjerimo termin.',
-      '',
-      'Vidimo se!',
-      signature()
-    ].join('\n');
+    var endTime = Utilities.formatDate(ev.getEndTime(), TIMEZONE, 'HH:mm');
 
-    MailApp.sendEmail(booking.email, 'Podsjetnik: fotografisanje ' + date + ' u ' + time, body);
+    var text = [
+      '🔔 <b>Za ' + REMINDER_DAYS_BEFORE + ' dana — fotografisanje</b>',
+      '',
+      '<b>' + escapeHtml(booking.typeName) + '</b> · ' + escapeHtml(booking.packageName),
+      '📅 ' + date + '  🕒 ' + time + ' – ' + endTime,
+      '',
+      '👤 ' + escapeHtml(booking.name),
+      '📞 ' + escapeHtml(booking.phone),
+      booking.email ? '✉️ ' + escapeHtml(booking.email) : '',
+      '',
+      'Vrijeme je da se javite klijentu.'
+    ].filter(Boolean).join('\n');
+
+    var buttons = [];
+    var wa = whatsappLink(booking.phone);
+    if (wa) buttons.push({ text: 'Napiši na WhatsApp', url: wa });
+
+    sendTelegram(text, buttons);
+
+    forEmail.push([
+      booking.typeName + ' · ' + booking.packageName,
+      'Vrijeme: ' + time + ' – ' + endTime,
+      'Klijent: ' + booking.name,
+      'Telefon: ' + booking.phone,
+      booking.email ? 'E-mail: ' + booking.email : ''
+    ].filter(Boolean).join('\n'));
+
     ev.setTag('reminderSent', new Date().toISOString());
-    sent++;
   });
 
-  if (sent) {
-    sendTelegram('🔔 Poslato podsjetnika klijentima: ' + sent +
-      ' (termini za ' + Utilities.formatDate(target, TIMEZONE, 'dd.MM.yyyy') + ')');
+  if (forEmail.length) {
+    var to = NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
+    MailApp.sendEmail(
+      to,
+      'Podsjetnik: fotografisanja ' + date + ' (' + forEmail.length + ')',
+      'Za ' + REMINDER_DAYS_BEFORE + ' dana, ' + date + ':\n\n' + forEmail.join('\n\n') +
+        '\n\nVrijeme je da se javite klijentima.'
+    );
   }
 
-  Logger.log('Poslato podsjetnika: ' + sent);
+  Logger.log('Podsjetnika poslato: ' + forEmail.length);
 }
 
 /**
