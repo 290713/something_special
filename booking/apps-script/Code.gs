@@ -8,7 +8,7 @@
 /* ======================= НАСТРОЙКИ ======================= */
 
 // Куда слать уведомления. Пусто = на почту того аккаунта, где создан скрипт.
-var NOTIFY_EMAIL = '';
+var NOTIFY_EMAIL = 'bjelobrkovic.ph@gmail.com';
 
 // В какой календарь писать съёмки. 'primary' = основной календарь аккаунта.
 var CALENDAR_ID = 'primary';
@@ -83,7 +83,7 @@ function isTaken(start, end) {
 }
 
 function createEvent(data, start, end) {
-  var title = 'Snimanje: ' + data.typeName + ' · ' + data.packageName + ' — ' + data.name;
+  var title = data.typeName + ' · ' + data.packageName + ' — ' + data.name;
   var description = [
     'Paket: ' + data.packageName,
     data.price ? 'Cijena: ' + data.price : '',
@@ -115,7 +115,7 @@ function notifyPhotographer(data) {
   var body = [
     'Novi zahtjev za termin',
     '',
-    'Vrsta snimanja: ' + data.typeName,
+    'Vrsta fotografisanja: ' + data.typeName,
     'Paket: ' + data.packageName + (data.price ? ' (' + data.price + ')' : ''),
     'Datum: ' + data.dateLabel,
     'Vrijeme: ' + data.time + ' – ' + data.endTime + ' (' + data.durationMin + ' min)',
@@ -140,7 +140,7 @@ function notifyClient(data) {
     '',
     'primila sam vaš zahtjev za fotografisanje:',
     '',
-    'Vrsta snimanja: ' + data.typeName,
+    'Vrsta fotografisanja: ' + data.typeName,
     'Paket: ' + data.packageName + (data.price ? ' (' + data.price + ')' : ''),
     'Datum: ' + data.dateLabel,
     'Vrijeme: ' + data.time + ' – ' + data.endTime,

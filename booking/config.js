@@ -16,8 +16,8 @@ const CONFIG = {
   photographer: {
     name: 'Elena Bjelobrković Photography',
     studio: 'Bar, Crna Gora',
-    phone: '',                 // например '+382 6X XXX XXX'
-    email: '',                 // показывается клиенту; пустое — не показывается
+    phone: '+382 67 841 779',
+    email: 'bjelobrkovic.ph@gmail.com',
     instagram: ''              // например 'https://instagram.com/...'
   },
 
@@ -234,8 +234,8 @@ const CONFIG = {
           id: 'milky-bath',
           name: 'Basic + Cake Smash + Milky Bath',
           price: 200,
-          durationMin: 90,
-          summary: 'Fotografisanje sa tortom i mliječnom kupkom | 70 digitalnih fotografija',
+          durationMin: 60,
+          summary: 'Fotografisanje u trajanju od 1 sat | 70 digitalnih fotografija',
           includes: [
             'Fotografisanje u dekorisanom studiju',
             'Fotografisanje bebe dok uživa u rušenju torte',
@@ -308,12 +308,12 @@ const CONFIG = {
         'Porodični portreti — topli, opušteni i bez forsiranog poziranja.',
       packages: [
         {
-          id: 'porodicno-dogovor',
-          name: 'Po dogovoru',
-          price: '',
+          id: 'porodicno-paket',
+          name: 'Porodični paket',
+          price: 100,
           durationMin: 60,
-          summary: 'Detalje i cijenu dogovaramo lično nakon prijave',
-          includes: []
+          summary: 'Fotografisanje do 60 min | 50 digitalnih fotografija',
+          includes: ['50 profesionalno obrađenih fotografija u visokoj rezoluciji']
         }
       ]
     },

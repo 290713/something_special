@@ -127,7 +127,7 @@ button, input, textarea { font: inherit; color: inherit; }
 
 .step__lead { margin: -6px 0 20px; color: var(--cocoa-soft); }
 
-/* ---- cards: vrste snimanja ---- */
+/* ---- cards: vrste fotografisanja ---- */
 .cards {
   display: grid;
   gap: 14px;

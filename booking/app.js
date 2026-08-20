@@ -101,7 +101,7 @@
 
   /* ---------- termini ------------------------------------------------------- */
 
-  /** Svi mogući početci snimanja za dati dan, bez provjere zauzetosti. */
+  /** Svi mogući početci fotografisanja za dati dan, bez provjere zauzetosti. */
   function buildSlots(dateStr, durationMin, schedule) {
     var day = parseYmd(dateStr).getDay();
     if (schedule.days.indexOf(day) === -1) return [];
@@ -111,7 +111,7 @@
     var step = schedule.stepMin || 30;
     var out = [];
 
-    // Pauza (bufferMin) se računa samo prema susjednim snimanjima, ne prema kraju dana —
+    // Pauza (bufferMin) se računa samo prema susjednim fotografisanjima, ne prema kraju dana —
     // inače najduži paketi ne bi stali u radno vrijeme.
     for (var m = start; m + durationMin <= end; m += step) out.push(toHM(m));
     return out;
@@ -177,7 +177,7 @@
   function monthStart(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
   function monthEnd(d) { return new Date(d.getFullYear(), d.getMonth() + 1, 0); }
 
-  /* ---------- render: vrste snimanja ---------------------------------------- */
+  /* ---------- render: vrste fotografisanja ---------------------------------------- */
 
   function renderTypes() {
     el['type-list'].innerHTML = '';
@@ -544,7 +544,7 @@
     el['success-text'].textContent = text;
 
     var rows = [
-      ['Vrsta snimanja', booking.typeName],
+      ['Vrsta fotografisanja', booking.typeName],
       ['Paket', booking.packageName],
       ['Datum', booking.dateLabel],
       ['Vrijeme', booking.time + ' – ' + booking.endTime]
@@ -572,7 +572,7 @@
   function icsStamp(iso) { return iso.replace(/[-:]/g, ''); }
 
   function icsText(booking) {
-    var title = 'Fotografisanje: ' + booking.typeName + ' · ' + booking.packageName;
+    var title = booking.typeName + ' · ' + booking.packageName;
     var desc = [booking.packageName, booking.price, CONFIG.photographer.name].filter(Boolean).join(' | ');
     return [
       'BEGIN:VCALENDAR',
@@ -607,7 +607,7 @@
     var to = CONFIG.photographer.email || '';
     var subject = 'Zahtjev za termin: ' + booking.typeName + ' — ' + booking.dateLabel;
     var body = [
-      'Vrsta snimanja: ' + booking.typeName,
+      'Vrsta fotografisanja: ' + booking.typeName,
       'Paket: ' + booking.packageName + (booking.price ? ' (' + booking.price + ')' : ''),
       'Datum: ' + booking.dateLabel,
       'Vrijeme: ' + booking.time + ' – ' + booking.endTime,
@@ -634,6 +634,15 @@
     }
     var parts = [p.studio, p.phone, p.email].filter(Boolean);
     el['foot-contact'].textContent = parts.join(' · ');
+    if (p.instagram) {
+      var link = document.createElement('a');
+      link.href = p.instagram;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = 'Instagram';
+      el['foot-contact'].appendChild(document.createTextNode(parts.length ? ' · ' : ''));
+      el['foot-contact'].appendChild(link);
+    }
     el['success-contact'].textContent = parts.length
       ? 'Kontakt: ' + parts.join(' · ')
       : '';
