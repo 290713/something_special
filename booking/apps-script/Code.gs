@@ -14,8 +14,19 @@
 // Куда слать уведомления. Пусто = на почту того аккаунта, где создан скрипт.
 var NOTIFY_EMAIL = 'bjelobrkovic.ph@gmail.com';
 
-// В какой календарь писать съёмки. 'primary' = основной календарь аккаунта.
+// В какой календарь ЗАПИСЫВАТЬ съёмки. 'primary' = основной календарь того
+// аккаунта, под которым создан скрипт (должен быть bjelobrkovic.ph@gmail.com).
 var CALENDAR_ID = 'primary';
+
+// Какие ЧУЖИЕ календари учитывать как занятость: если там что-то стоит,
+// это время не предлагается клиентам. Календарь из CALENDAR_ID учитывается
+// всегда, отдельно писать его сюда не нужно.
+// Важно: каждый из этих календарей нужно один раз расшарить на аккаунт,
+// под которым работает скрипт (см. README, раздел «Чужие календари»).
+var BUSY_CALENDAR_IDS = [
+  'elenabjelobrkovic@gmail.com',
+  'nowcreativespace305@gmail.com'
+];
 
 // Часовой пояс студии. Все даты с сайта понимаются в этом поясе.
 var TIMEZONE = 'Europe/Podgorica';
@@ -53,12 +64,11 @@ function doGet(e) {
     var to = parseDay(e.parameter.to);
     to.setDate(to.getDate() + 1); // включительно последний день
 
-    var busy = getCalendar().getEvents(from, to)
-      .filter(function (ev) { return ev.getMyStatus() !== CalendarApp.GuestStatus.NO; })
-      .map(function (ev) {
-        // Только границы занятости — без названий событий.
-        return { start: ev.getStartTime().toISOString(), end: ev.getEndTime().toISOString() };
-      });
+    // Занятость собирается по всем календарям сразу: своему и расшаренным.
+    var busy = getEventsAcrossCalendars(from, to).map(function (ev) {
+      // Только границы занятости — без названий событий.
+      return { start: ev.getStartTime().toISOString(), end: ev.getEndTime().toISOString() };
+    });
 
     return json({ ok: true, busy: busy });
   } catch (err) {
@@ -92,9 +102,11 @@ function doPost(e) {
 
 function isTaken(start, end) {
   var buffer = BUFFER_MIN * 60000;
-  var window = getCalendar().getEvents(new Date(start.getTime() - buffer), new Date(end.getTime() + buffer));
+  var window = getEventsAcrossCalendars(
+    new Date(start.getTime() - buffer),
+    new Date(end.getTime() + buffer)
+  );
   return window.some(function (ev) {
-    if (ev.getMyStatus() === CalendarApp.GuestStatus.NO) return false;
     return ev.getStartTime().getTime() - buffer < end.getTime() &&
            ev.getEndTime().getTime() + buffer > start.getTime();
   });
@@ -338,10 +350,58 @@ function signature() {
   return [SIGNATURE_NAME, CONTACT_PHONE].filter(Boolean).join('\n');
 }
 
+/** Календарь, в который записываются съёмки. */
 function getCalendar() {
   return CALENDAR_ID === 'primary'
     ? CalendarApp.getDefaultCalendar()
     : CalendarApp.getCalendarById(CALENDAR_ID);
+}
+
+/** Все календари, которые считаются занятостью: свой плюс расшаренные. */
+function getBusyCalendars() {
+  var calendars = [getCalendar()];
+
+  BUSY_CALENDAR_IDS.forEach(function (id) {
+    if (!id) return;
+    var calendar = null;
+    try { calendar = CalendarApp.getCalendarById(id); } catch (err) { calendar = null; }
+
+    if (calendar) calendars.push(calendar);
+    // Календарь не расшарен на этот аккаунт — молча пропускаем, чтобы одна
+    // неверная строка не сломала запись. Проверить можно функцией testCalendars.
+    else Logger.log('Kalendar nije dostupan: ' + id);
+  });
+
+  return calendars;
+}
+
+/** События из всех календарей за период, без дублей и без отклонённых. */
+function getEventsAcrossCalendars(from, to) {
+  var seen = {};
+  var events = [];
+
+  getBusyCalendars().forEach(function (calendar) {
+    calendar.getEvents(from, to).forEach(function (ev) {
+      if (isDeclined(ev)) return;
+
+      // Одно и то же событие может лежать сразу в двух календарях.
+      var key = ev.getId() + '@' + ev.getStartTime().getTime();
+      if (seen[key]) return;
+      seen[key] = true;
+      events.push(ev);
+    });
+  });
+
+  return events;
+}
+
+/** Приглашение, от которого отказались, занятостью не считается. */
+function isDeclined(ev) {
+  try {
+    return ev.getMyStatus() === CalendarApp.GuestStatus.NO;
+  } catch (err) {
+    return false;
+  }
 }
 
 /** '2026-09-12T10:00:00' — читается как местное время студии. */
@@ -393,6 +453,23 @@ function testBooking() {
   });
 
   Logger.log(result.getContent());
+}
+
+/**
+ * Проверка календарей: показывает, куда пишутся съёмки и какие чужие
+ * календари скрипт реально видит. Запустите вручную и откройте View → Logs.
+ */
+function testCalendars() {
+  var target = getCalendar();
+  Logger.log('Snimanja se upisuju u: ' + target.getName() + '  (' + target.getId() + ')');
+
+  BUSY_CALENDAR_IDS.forEach(function (id) {
+    var calendar = null;
+    try { calendar = CalendarApp.getCalendarById(id); } catch (err) { calendar = null; }
+    Logger.log(calendar
+      ? 'OK — zauzeća se čitaju iz: ' + id
+      : 'NIJE DOSTUPAN: ' + id + ' — podijelite taj kalendar sa nalogom koji pokreće skriptu');
+  });
 }
 
 /** Проверка только Telegram — придёт короткое сообщение в чат. */
