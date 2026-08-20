@@ -10,7 +10,7 @@ const CONFIG = {
      Сюда вставьте адрес веб-приложения Google Apps Script (см. README.md).
      Пока строка пустая, заявка открывает готовое письмо в вашей почте
      и скачивает файл .ics для календаря — всё работает, но вручную. */
-  endpoint: '',
+  endpoint: 'https://script.google.com/macros/s/AKfycbwbKvNFpgHYLlK5a-bWyYqtW8BTBjRUrbvQmtQQR7uIVq-N3PdPb8wUGs2NrIGt-msA/exec',
 
   /* ---- 2. Кто вы ----------------------------------------------------------
      Внизу страницы и на экране «спасибо» показываются только name, studio,
