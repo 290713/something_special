@@ -522,18 +522,24 @@
 
   function finishOnline(booking) {
     state.lastBooking = booking;
-    showSuccess(booking, 'Vaš zahtjev je poslat i termin je zabilježen u mom kalendaru. ' +
+    showSuccess(booking, 'Vaš zahtjev je primljen i termin je zabilježen u mom kalendaru. ' +
       'Javljam se vam lično u najkraćem roku da potvrdimo sve detalje.');
   }
 
+  /**
+   * Rezervni put — koristi se samo dok CONFIG.endpoint nije podešen.
+   * Tada zahtjev do mene stiže jedino porukom koju klijent pošalje,
+   * pa to moramo i tražiti; sa podešenim endpointom ovaj tekst se ne prikazuje.
+   */
   function finishOffline(booking, afterError) {
     state.lastBooking = booking;
     window.location.href = mailtoLink(booking);
     downloadIcs(booking);
     showSuccess(booking, (afterError
-      ? 'Slanje preko sajta trenutno nije uspjelo, pa sam vam otvorila pripremljenu poruku. '
-      : 'Otvorila sam pripremljenu poruku sa svim podacima. ') +
-      'Molim vas pošaljite je (ili mi javite na telefon) — termin potvrđujem lično.');
+      ? 'Slanje preko sajta trenutno nije uspjelo. '
+      : '') +
+      'Otvorila se pripremljena poruka sa svim podacima — molim vas samo je pošaljite. ' +
+      'Zatim se javljam vama lično.');
   }
 
   function showSuccess(booking, text) {
