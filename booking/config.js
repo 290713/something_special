@@ -12,13 +12,18 @@ const CONFIG = {
      и скачивает файл .ics для календаря — всё работает, но вручную. */
   endpoint: '',
 
-  /* ---- 2. Кто вы ---------------------------------------------------------- */
+  /* ---- 2. Кто вы ----------------------------------------------------------
+     Внизу страницы и на экране «спасибо» показываются только name, studio,
+     website и instagram. Телефон и почта клиенту не показываются. */
   photographer: {
     name: 'Elena Bjelobrković Photography',
     studio: 'Bar, Crna Gora',
-    phone: '+382 67 841 779',
-    email: 'bjelobrkovic.ph@gmail.com',
-    instagram: ''              // например 'https://instagram.com/...'
+    website: 'elenabjelobrkovic.com',
+    instagram: '',             // например 'https://instagram.com/...'
+
+    // Не показывается на странице. Пока не подключён Apps Script (пункт 1),
+    // заявка открывается письмом на этот адрес.
+    fallbackEmail: 'bjelobrkovic.ph@gmail.com'
   },
 
   /* ---- 3. Рабочее время студии --------------------------------------------
