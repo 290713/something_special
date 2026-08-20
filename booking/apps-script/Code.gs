@@ -1,5 +1,8 @@
 /**
- * Приём заявок с сайта записи: письмо на почту + событие в Google Календаре.
+ * Приём заявок с сайта записи:
+ *   — событие в Google Календаре;
+ *   — уведомление вам в Telegram и на почту;
+ *   — письмо клиенту сразу и напоминание за 2 дня до съёмки.
  *
  * Как подключить — по шагам в booking/README.md.
  * Ниже нужно проверить только блок НАСТРОЙКИ.
@@ -19,8 +22,20 @@ var TIMEZONE = 'Europe/Podgorica';
 // Технический перерыв между съёмками (минуты) — должен совпадать с bufferMin в config.js.
 var BUFFER_MIN = 15;
 
-// Отправлять ли клиенту письмо-подтверждение.
-var SEND_CLIENT_CONFIRMATION = true;
+// --- Уведомления вам в Telegram (см. README, раздел «Telegram») ---
+// Пока оба поля пустые, Telegram просто не используется.
+var TELEGRAM_BOT_TOKEN = '';
+var TELEGRAM_CHAT_ID = '';
+
+// Подпись в письмах клиенту: имя и телефон для связи.
+var SIGNATURE_NAME = 'Elena Bjelobrković Photography';
+var CONTACT_PHONE = '+382 67 841 779';
+
+// --- Письма клиенту ---
+var SEND_CLIENT_CONFIRMATION = true;   // письмо сразу после записи
+var SEND_CLIENT_REMINDER = true;       // напоминание перед съёмкой
+var REMINDER_DAYS_BEFORE = 2;          // за сколько дней напоминать
+var REMINDER_HOUR = 10;                // в котором часу отправлять напоминания
 
 // Приглашать ли клиента в событие календаря (он получит приглашение от Google).
 var INVITE_CLIENT = false;
@@ -62,6 +77,7 @@ function doPost(e) {
 
     var event = createEvent(data, start, end);
     notifyPhotographer(data);
+    notifyTelegram(data);
     if (SEND_CLIENT_CONFIRMATION && data.email) notifyClient(data);
 
     return json({ ok: true, eventId: event.getId() });
@@ -106,8 +122,20 @@ function createEvent(data, start, end) {
 
   var event = getCalendar().createEvent(title, start, end, options);
   event.addPopupReminder(24 * 60);
+
+  // Скрытая пометка: по ней потом находим съёмки, о которых надо напомнить.
+  event.setTag('booking', JSON.stringify({
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    typeName: data.typeName,
+    packageName: data.packageName
+  }));
+
   return event;
 }
+
+/* ---------------------- уведомления вам ---------------------- */
 
 function notifyPhotographer(data) {
   var to = NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
@@ -133,6 +161,66 @@ function notifyPhotographer(data) {
   MailApp.sendEmail(to, subject, body, options);
 }
 
+/** Сообщение вам в Telegram. Если бот не настроен — тихо пропускается. */
+function notifyTelegram(data) {
+  var text = [
+    '📸 <b>Novo zakazivanje</b>',
+    '',
+    '<b>' + escapeHtml(data.typeName) + '</b> · ' + escapeHtml(data.packageName) +
+      (data.price ? ' (' + escapeHtml(data.price) + ')' : ''),
+    '📅 ' + escapeHtml(data.dateLabel),
+    '🕒 ' + data.time + ' – ' + data.endTime,
+    '',
+    '👤 ' + escapeHtml(data.name),
+    '📞 ' + escapeHtml(data.phone),
+    '✉️ ' + escapeHtml(data.email),
+    data.message ? '💬 ' + escapeHtml(data.message) : ''
+  ].filter(Boolean).join('\n');
+
+  var buttons = [];
+  var wa = whatsappLink(data.phone);
+  if (wa) buttons.push({ text: 'Napiši na WhatsApp', url: wa });
+
+  sendTelegram(text, buttons);
+}
+
+function sendTelegram(text, buttons) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+
+  var payload = {
+    chat_id: String(TELEGRAM_CHAT_ID),
+    text: text,
+    parse_mode: 'HTML',
+    disable_web_page_preview: true
+  };
+  if (buttons && buttons.length) {
+    payload.reply_markup = JSON.stringify({ inline_keyboard: [buttons] });
+  }
+
+  try {
+    UrlFetchApp.fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
+      method: 'post',
+      payload: payload,
+      muteHttpExceptions: true
+    });
+  } catch (err) {
+    // Telegram не должен ломать запись: заявка уже в календаре и на почте.
+    Logger.log('Telegram: ' + err);
+  }
+}
+
+/** Ссылка на чат с клиентом в WhatsApp — открывается в один клик из Telegram. */
+function whatsappLink(phone) {
+  var digits = String(phone || '').replace(/\D/g, '');
+  return digits.length >= 8 ? 'https://wa.me/' + digits : '';
+}
+
+function escapeHtml(text) {
+  return String(text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/* ---------------------- письма клиенту ---------------------- */
+
 function notifyClient(data) {
   var subject = 'Vaš zahtjev za termin je primljen';
   var body = [
@@ -146,11 +234,89 @@ function notifyClient(data) {
     'Vrijeme: ' + data.time + ' – ' + data.endTime,
     '',
     'Javljam se u najkraćem roku da potvrdimo sve detalje.',
+    SEND_CLIENT_REMINDER
+      ? 'Podsjetnik ćete dobiti na e-mail ' + REMINDER_DAYS_BEFORE + ' dana prije termina.'
+      : '',
     '',
-    'Srdačan pozdrav'
-  ].join('\n');
+    'Srdačan pozdrav,',
+    signature()
+  ].filter(Boolean).join('\n');
 
   MailApp.sendEmail(data.email, subject, body);
+}
+
+/**
+ * Напоминания клиентам. Запускается автоматически раз в день —
+ * триггер ставится функцией installReminderTrigger (см. README).
+ */
+function sendReminders() {
+  if (!SEND_CLIENT_REMINDER) return;
+
+  var today = new Date();
+  var target = new Date(today.getFullYear(), today.getMonth(), today.getDate() + REMINDER_DAYS_BEFORE);
+  var dayEnd = new Date(target.getTime() + 86400000);
+  var sent = 0;
+
+  getCalendar().getEvents(target, dayEnd).forEach(function (ev) {
+    var raw = ev.getTag('booking');
+    if (!raw || ev.getTag('reminderSent')) return;
+
+    var booking;
+    try { booking = JSON.parse(raw); } catch (err) { return; }
+    if (!booking.email) return;
+
+    var date = Utilities.formatDate(ev.getStartTime(), TIMEZONE, 'dd.MM.yyyy');
+    var time = Utilities.formatDate(ev.getStartTime(), TIMEZONE, 'HH:mm');
+    var body = [
+      'Poštovani/a ' + booking.name + ',',
+      '',
+      'podsjećam vas na naše fotografisanje:',
+      '',
+      'Vrsta fotografisanja: ' + booking.typeName,
+      'Paket: ' + booking.packageName,
+      'Datum: ' + date + ' u ' + time,
+      '',
+      'Ako vam nešto iskrsne, javite mi na vrijeme da pomjerimo termin.',
+      '',
+      'Vidimo se!',
+      signature()
+    ].join('\n');
+
+    MailApp.sendEmail(booking.email, 'Podsjetnik: fotografisanje ' + date + ' u ' + time, body);
+    ev.setTag('reminderSent', new Date().toISOString());
+    sent++;
+  });
+
+  if (sent) {
+    sendTelegram('🔔 Poslato podsjetnika klijentima: ' + sent +
+      ' (termini za ' + Utilities.formatDate(target, TIMEZONE, 'dd.MM.yyyy') + ')');
+  }
+
+  Logger.log('Poslato podsjetnika: ' + sent);
+}
+
+/**
+ * Ставит ежедневный запуск напоминаний. Запустите один раз вручную
+ * из редактора скрипта — и потом ещё раз, если поменяете REMINDER_HOUR.
+ */
+function installReminderTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'sendReminders') ScriptApp.deleteTrigger(t);
+  });
+
+  ScriptApp.newTrigger('sendReminders')
+    .timeBased()
+    .everyDays(1)
+    .atHour(REMINDER_HOUR)
+    .create();
+
+  Logger.log('Podsjetnici se šalju svaki dan oko ' + REMINDER_HOUR + ' h.');
+}
+
+/* ---------------------- вспомогательное ---------------------- */
+
+function signature() {
+  return [SIGNATURE_NAME, CONTACT_PHONE].filter(Boolean).join('\n');
 }
 
 function getCalendar() {
@@ -175,9 +341,11 @@ function json(payload) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+/* ---------------------- проверка настройки ---------------------- */
+
 /**
- * Проверка настройки: запустите вручную из редактора (кнопка «Выполнить»).
- * Создаёт тестовую заявку на завтра и присылает письмо — потом удалите событие.
+ * Тестовая заявка: создаёт съёмку на завтра, шлёт письмо и сообщение в Telegram.
+ * Запустите вручную из редактора, потом удалите тестовое событие из календаря.
  */
 function testBooking() {
   var tomorrow = new Date();
@@ -206,4 +374,34 @@ function testBooking() {
   });
 
   Logger.log(result.getContent());
+}
+
+/** Проверка только Telegram — придёт короткое сообщение в чат. */
+function testTelegram() {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+    Logger.log('Telegram nije podešen: popunite TELEGRAM_BOT_TOKEN i TELEGRAM_CHAT_ID.');
+    return;
+  }
+  sendTelegram('✅ Telegram je povezan. Ovdje će stizati nova zakazivanja.');
+  Logger.log('Poruka poslata.');
+}
+
+/** Показывает chat_id: напишите боту любое сообщение и запустите эту функцию. */
+function showTelegramChatId() {
+  if (!TELEGRAM_BOT_TOKEN) {
+    Logger.log('Prvo popunite TELEGRAM_BOT_TOKEN.');
+    return;
+  }
+  var res = UrlFetchApp.fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/getUpdates',
+    { muteHttpExceptions: true });
+  var updates = JSON.parse(res.getContentText()).result || [];
+
+  if (!updates.length) {
+    Logger.log('Nema poruka. Napišite bot-u bilo šta u Telegramu pa pokrenite ponovo.');
+    return;
+  }
+  updates.forEach(function (u) {
+    var chat = (u.message && u.message.chat) || (u.channel_post && u.channel_post.chat);
+    if (chat) Logger.log('chat_id: ' + chat.id + '  (' + (chat.title || chat.first_name || '') + ')');
+  });
 }

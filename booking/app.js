@@ -523,7 +523,8 @@
   function finishOnline(booking) {
     state.lastBooking = booking;
     showSuccess(booking, 'Vaš zahtjev je poslat i termin je zabilježen u mom kalendaru. ' +
-      'Javljam se u najkraćem roku da potvrdimo sve detalje.');
+      'Javljam se u najkraćem roku da potvrdimo sve detalje. ' +
+      'Potvrdu ste dobili na e-mail, a podsjetnik stiže dva dana prije termina.');
   }
 
   function finishOffline(booking, afterError) {
