@@ -96,7 +96,7 @@
    'type-notes', 'type-extras', 'step-date', 'cal-grid', 'cal-month', 'cal-prev', 'cal-next',
    'cal-hint', 'step-time', 'slot-list', 'slot-empty', 'step-form', 'booking-form', 'form-error',
    'submit-btn', 'screen-success', 'success-summary', 'success-text', 'success-contact',
-   'ics-btn', 'restart-btn', 'step-type', 'studio-name', 'foot-name', 'foot-contact'
+   'restart-btn', 'step-type', 'studio-name', 'foot-name', 'foot-contact'
   ].forEach(function (id) { el[id] = document.getElementById(id); });
 
   /* ---------- termini ------------------------------------------------------- */
@@ -534,7 +534,6 @@
   function finishOffline(booking, afterError) {
     state.lastBooking = booking;
     window.location.href = mailtoLink(booking);
-    downloadIcs(booking);
     showSuccess(booking, (afterError
       ? 'Slanje preko sajta trenutno nije uspjelo. '
       : '') +
@@ -573,41 +572,7 @@
     scrollTo(el['screen-success']);
   }
 
-  /* ---------- .ics i mailto ---------------------------------------------------- */
-
-  function icsStamp(iso) { return iso.replace(/[-:]/g, ''); }
-
-  function icsText(booking) {
-    var title = booking.typeName + ' · ' + booking.packageName;
-    var desc = [booking.packageName, booking.price, CONFIG.photographer.name].filter(Boolean).join(' | ');
-    return [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Booking//Photo//SR',
-      'BEGIN:VEVENT',
-      'UID:' + Date.now() + '@booking',
-      'DTSTAMP:' + icsStamp(localIso(new Date())),
-      'DTSTART:' + icsStamp(booking.startIso),
-      'DTEND:' + icsStamp(booking.endIso),
-      'SUMMARY:' + title,
-      'DESCRIPTION:' + desc,
-      'LOCATION:' + (CONFIG.photographer.studio || ''),
-      'END:VEVENT',
-      'END:VCALENDAR'
-    ].join('\r\n');
-  }
-
-  function downloadIcs(booking) {
-    var blob = new Blob([icsText(booking)], { type: 'text/calendar;charset=utf-8' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'termin-' + booking.date + '.ics';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-  }
+  /* ---------- mailto ---------------------------------------------------------- */
 
   function mailtoLink(booking) {
     var to = CONFIG.photographer.fallbackEmail || '';
@@ -685,10 +650,6 @@
   });
 
   el['booking-form'].addEventListener('submit', submit);
-
-  el['ics-btn'].addEventListener('click', function () {
-    if (state.lastBooking) downloadIcs(state.lastBooking);
-  });
 
   el['restart-btn'].addEventListener('click', function () {
     state.typeId = state.packageId = state.date = state.time = null;
