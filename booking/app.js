@@ -604,7 +604,7 @@
   }
 
   function mailtoLink(booking) {
-    var to = CONFIG.photographer.email || '';
+    var to = CONFIG.photographer.fallbackEmail || '';
     var subject = 'Zahtjev za termin: ' + booking.typeName + ' — ' + booking.dateLabel;
     var body = [
       'Vrsta fotografisanja: ' + booking.typeName,
@@ -632,20 +632,36 @@
       el['foot-name'].textContent = p.name;
       document.title = 'Zakazivanje termina · ' + p.name;
     }
-    var parts = [p.studio, p.phone, p.email].filter(Boolean);
-    el['foot-contact'].textContent = parts.join(' · ');
-    if (p.instagram) {
-      var link = document.createElement('a');
-      link.href = p.instagram;
-      link.target = '_blank';
-      link.rel = 'noopener';
-      link.textContent = 'Instagram';
-      el['foot-contact'].appendChild(document.createTextNode(parts.length ? ' · ' : ''));
-      el['foot-contact'].appendChild(link);
-    }
-    el['success-contact'].textContent = parts.length
-      ? 'Kontakt: ' + parts.join(' · ')
-      : '';
+    fillContacts(el['foot-contact'], '');
+    fillContacts(el['success-contact'], 'Više o meni: ');
+  }
+
+  /** Studio, sajt i Instagram — telefon i e-mail se klijentu ne prikazuju. */
+  function fillContacts(node, prefix) {
+    var p = CONFIG.photographer;
+    var items = [];
+
+    if (p.studio) items.push(document.createTextNode(p.studio));
+    if (p.website) items.push(externalLink(p.website, p.website.replace(/^https?:\/\//, '')));
+    if (p.instagram) items.push(externalLink(p.instagram, 'Instagram'));
+
+    node.textContent = '';
+    if (!items.length) return;
+
+    if (prefix) node.appendChild(document.createTextNode(prefix));
+    items.forEach(function (item, i) {
+      if (i) node.appendChild(document.createTextNode(' · '));
+      node.appendChild(item);
+    });
+  }
+
+  function externalLink(url, label) {
+    var a = document.createElement('a');
+    a.href = /^https?:\/\//.test(url) ? url : 'https://' + url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = label;
+    return a;
   }
 
   /* ---------- start -------------------------------------------------------------- */
