@@ -1,114 +1,151 @@
-<!DOCTYPE html>
-<html lang="sr-ME">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Foto CRM</title>
+<title>Bjelobrkovic Kids CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Figtree:wght@400;500;600;700&display=swap">
 <!--
-  Foto CRM — radi bez interneta. Svi podaci se čuvaju samo u ovom browseru
-  (localStorage) na ovom računaru. Ovaj fajl ne sadrži nikakve podatke o klijentima.
+  Foto CRM — CRM za dječiju i porodičnu fotografkinju.
+  Ovaj fajl ne sadrži podatke o klijentima. Na claude.ai podaci su u privatnoj bazi
+  artefakta (capability "db"); otvoren kao lokalni fajl, čuva ih u localStorage.
 -->
 <style>
 :root{
-  --bg:#faf7f5; --surface:#fff; --ink:#2b2523; --muted:#7a6f6b; --line:#e8e0dc;
-  --accent:#b5646f; --accent-ink:#fff; --accent-soft:#f6e7e9;
-  --red:#c0392b; --red-soft:#fbe3e0; --orange:#b86a00; --orange-soft:#fdf0d9;
-  --green:#2e7d4f; --green-soft:#e2f3e8; --grey-soft:#f1eeec;
+  --bg:#faf6f5; --surface:#ffffff; --ink:#2d2426; --muted:#7b6c6f; --line:#eadfdf;
+  --accent:#a8566a; --accent-ink:#ffffff; --accent-soft:#f5e6ea;
+  --red:#b3261e; --red-soft:#fbe4e1; --orange:#945600; --orange-soft:#fcefd8;
+  --green:#2c7a4b; --green-soft:#e0f1e6; --grey-soft:#f3eeee;
+  --shadow:0 12px 40px rgba(60,30,40,.18); --overlay:rgba(45,30,35,.45);
+  --serif:"DM Serif Display", Georgia, "Times New Roman", serif;
+  --sans:"Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#1c1718; --surface:#262022; --ink:#f1e9ea; --muted:#b3a3a6; --line:#3a3134;
+    --accent:#e08ea2; --accent-ink:#1c1718; --accent-soft:#43292f;
+    --red:#f08a80; --red-soft:#4a2522; --orange:#f0b35c; --orange-soft:#43321a;
+    --green:#7fd3a0; --green-soft:#1f3a2a; --grey-soft:#2f2729;
+    --shadow:0 12px 40px rgba(0,0,0,.5); --overlay:rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#1c1718; --surface:#262022; --ink:#f1e9ea; --muted:#b3a3a6; --line:#3a3134;
+  --accent:#e08ea2; --accent-ink:#1c1718; --accent-soft:#43292f;
+  --red:#f08a80; --red-soft:#4a2522; --orange:#f0b35c; --orange-soft:#43321a;
+  --green:#7fd3a0; --green-soft:#1f3a2a; --grey-soft:#2f2729;
+  --shadow:0 12px 40px rgba(0,0,0,.5); --overlay:rgba(0,0,0,.6);
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-header{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;padding:10px 20px;flex-wrap:wrap}
-.brand{font-weight:700;font-size:17px;white-space:nowrap}
-.brand span{font-weight:400;color:var(--muted);font-size:13px;margin-left:6px}
-nav{display:flex;gap:4px;flex-wrap:wrap;flex:1}
-nav button{background:none;border:0;padding:8px 12px;border-radius:8px;font:inherit;color:var(--muted);cursor:pointer}
+[hidden]{display:none!important}
+a{color:var(--accent)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px 16px;padding-block:10px;padding-inline:16px;flex-wrap:wrap}
+.brand{font-family:var(--serif);font-size:21px;white-space:nowrap;line-height:1.1}
+.brand small{display:block;font-family:var(--sans);font-size:12px;color:var(--muted);letter-spacing:.02em}
+nav{display:flex;gap:2px;flex-wrap:wrap;flex:1}
+nav button{background:none;border:0;padding:7px 11px;border-radius:8px;font:inherit;font-weight:500;color:var(--muted);cursor:pointer}
+nav button:hover{color:var(--ink)}
 nav button.on{background:var(--accent-soft);color:var(--ink);font-weight:600}
-.badge{display:inline-block;min-width:20px;padding:0 6px;border-radius:10px;background:var(--accent);color:#fff;font-size:12px;font-weight:600;text-align:center;margin-left:4px}
-.badge.red{background:var(--red)}
-main{max-width:1180px;margin:0 auto;padding:20px}
-h1{font-size:22px;margin:4px 0 4px}
-h2{font-size:18px;margin:22px 0 8px}
-.hint{color:var(--muted);font-size:13px;margin:0 0 12px}
+.badge{display:inline-block;min-width:20px;padding:0 6px;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:700;text-align:center;margin-left:5px;font-variant-numeric:tabular-nums}
+.badge.red{background:var(--red);color:var(--surface)}
+.sync{font-size:12px;color:var(--muted);white-space:nowrap}
+.sync.err{color:var(--red);font-weight:600}
+main{max-width:1180px;margin:0 auto;padding-block:20px 40px;padding-inline:16px}
+h1{font-family:var(--serif);font-weight:400;font-size:28px;margin:4px 0 4px;text-wrap:balance}
+h2{font-size:16px;font-weight:700;margin:26px 0 8px;text-wrap:balance}
+.hint{color:var(--muted);font-size:13px;margin:0 0 12px;max-width:75ch}
 button,.btn{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 12px;border-radius:8px}
-button:hover{border-color:var(--accent)}
+button:hover,.btn:hover{border-color:var(--accent)}
+button:focus-visible,.btn:focus-within{outline:2px solid var(--accent);outline-offset:1px}
 button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
 button.small{padding:3px 9px;font-size:13px}
 button.danger{color:var(--red)}
-button.link{border:0;background:none;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer}
-table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+button.link{border:0;background:none;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;text-align:left}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{width:100%;border-collapse:collapse}
 th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-th{background:var(--grey-soft);font-size:13px;color:var(--muted);font-weight:600}
+th{background:var(--grey-soft);font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap}
 tr:last-child td{border-bottom:0}
 tr.click{cursor:pointer}
-tr.click:hover td{background:#fcf9f8}
+tr.click:hover td{background:var(--grey-soft)}
 tr.hot td{background:var(--orange-soft)}
 tr.late td{background:var(--red-soft)}
 tr.done td{color:var(--muted);background:var(--grey-soft)}
-td.num,th.num{text-align:right;white-space:nowrap}
+td.num,th.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;background:var(--grey-soft);color:var(--muted);margin:1px 2px 1px 0;white-space:nowrap}
 .tag.acc{background:var(--accent-soft);color:var(--accent)}
 .tag.green{background:var(--green-soft);color:var(--green)}
 .tag.red{background:var(--red-soft);color:var(--red)}
 .tag.orange{background:var(--orange-soft);color:var(--orange)}
+tr.late .tag,tr.hot .tag{background:var(--surface)}
 .muted{color:var(--muted)}
 .empty{padding:18px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
-.toolbar input,.toolbar select{width:auto}
-input,select,textarea{font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);width:100%}
+.toolbar input,.toolbar select{width:auto;max-width:100%}
+input,select,textarea{font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%}
 textarea{min-height:60px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+input:disabled{background:var(--grey-soft);color:var(--ink)}
 label{display:block;font-size:13px;color:var(--muted);margin:0 0 10px}
 label>input,label>select,label>textarea{margin-top:3px;color:var(--ink);font-size:15px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 12px}
 .checks{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 10px;font-size:14px}
-.checks label{display:flex;align-items:center;gap:5px;margin:0;color:var(--ink);font-size:14px}
-.checks input{width:auto;margin:0}
+.checks label,.inline{display:flex;align-items:center;gap:6px;margin:0;color:var(--ink);font-size:14px}
+.checks input,.inline input{width:auto;margin:0}
+.inline{align-self:end;padding-bottom:10px;font-size:15px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}
-.chips label{margin:0}
+.chips label{margin:0;position:relative}
 .chips input{position:absolute;opacity:0;width:1px;height:1px}
-.chips span{display:inline-block;padding:5px 11px;border:1px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);font-size:14px;cursor:pointer;user-select:none}
-.chips input:checked+span{background:var(--accent);border-color:var(--accent);color:#fff}
+.chips span{display:inline-block;padding:5px 11px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);font-size:14px;cursor:pointer;user-select:none}
+.chips input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .chips input:focus-visible+span{outline:2px solid var(--accent)}
 .fieldtitle{font-size:13px;color:var(--muted);margin:0}
-.modal{position:fixed;inset:0;background:rgba(40,30,28,.45);display:flex;align-items:flex-start;justify-content:center;padding:30px 12px;overflow:auto;z-index:20}
-.modal.hidden{display:none}
-.box{background:var(--surface);border-radius:14px;max-width:760px;width:100%;padding:20px 22px;box-shadow:0 10px 40px rgba(0,0,0,.2)}
-.box h2{margin-top:0}
+.modal{position:fixed;inset:0;background:var(--overlay);display:flex;align-items:flex-start;justify-content:center;padding:30px 16px;overflow:auto;z-index:20}
+.modal.top{z-index:40;align-items:center}
+.box{background:var(--surface);border-radius:14px;max-width:760px;width:100%;padding:20px 22px;box-shadow:var(--shadow)}
+.box.narrow{max-width:440px}
+.box h2{margin-top:0;font-family:var(--serif);font-weight:400;font-size:24px}
 .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
 .actions .left{margin-right:auto}
-.section{border-top:1px solid var(--line);margin-top:16px;padding-top:6px}
+.section{border-top:1px solid var(--line);margin-top:16px;padding-top:4px}
 .banner{max-width:1180px;margin:12px auto 0;padding:10px 14px;border-radius:10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.bannerwrap{padding-inline:16px}
 .banner.warn{background:var(--orange-soft)}
 .banner.err{background:var(--red-soft)}
 .kpis{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0 6px}
-.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 16px;min-width:170px}
-.kpi b{display:block;font-size:22px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 16px;min-width:150px}
+.kpi b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
 .kpi span{color:var(--muted);font-size:13px}
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.match{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.match{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px;align-items:center}
 .match button{font-size:13px;padding:4px 10px;background:var(--accent-soft);border-color:var(--accent-soft)}
-.picked{background:var(--accent-soft);padding:8px 12px;border-radius:8px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 18px;border-radius:20px;z-index:30;font-size:14px}
+.picked{background:var(--accent-soft);padding:8px 12px;border-radius:8px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:20px;z-index:50;font-size:14px;max-width:calc(100% - 32px)}
+.toast.err{background:var(--red);color:var(--surface)}
 .pre{white-space:pre-wrap}
-@media (max-width:760px){.grid2,.grid3,.cols{grid-template-columns:1fr} main{padding:14px} header{padding:10px 14px}}
+.loading{padding:40px 0;text-align:center;color:var(--muted)}
+@media (max-width:760px){.grid2,.grid3,.cols{grid-template-columns:1fr} .brand small{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
-</head>
-<body>
+
 <header>
-  <div class="brand">Foto CRM <span>@bjelobrkovic_kids</span></div>
+  <div class="brand">Foto CRM<small>@bjelobrkovic_kids</small></div>
   <nav id="nav"></nav>
-  <button class="primary" id="btnNew" title="Prečica: N">+ Novi upit</button>
+  <span class="sync" id="sync"></span>
+  <button class="primary" id="btnNew" type="button" title="Prečica: N">+ Novi upit</button>
 </header>
-<div id="banner"></div>
-<main id="main"></main>
-<div id="modal" class="modal hidden"><div class="box" id="modalBox"></div></div>
+<div id="banner" class="bannerwrap"></div>
+<main id="main"><div class="loading">Učitavanje podataka…</div></main>
+<div id="modal" class="modal" hidden><div class="box" id="modalBox"></div></div>
+<div id="confirm" class="modal top" hidden><div class="box narrow"><p id="confirmMsg" class="pre"></p><div class="actions"><button type="button" id="confirmNo">Odustani</button><button type="button" class="primary" id="confirmYes">Da</button></div></div></div>
 
 <script>
 'use strict';
 
 /* ---------- Konstante ---------- */
-const KEY = 'fotoCrm.v1';
+const LOCAL_KEY = 'fotoCrm.v1';
+const COLS = { clients: 'klijenti', children: 'djeca', shoots: 'fotosesije' };
 const IZVORI = ['Lični Instagram', 'Instagram studija', 'Telegram «Родители и дети Бар»', 'Targetirana reklama', 'Preporuka', 'Google', 'Sajt', 'Drugo'];
 const VRSTE = ['Trudnička', 'Novorođenče', 'Beba do godine', 'Prvi rođendan', 'Starija djeca', 'Porodična', 'Događaj', 'Projekat'];
 const PROJEKTI = ['Lubenica', 'Đaci prvaci', 'Mama i ja', 'Bake i unuci', 'Novogodišnji', '8. mart', 'Uskrs'];
@@ -120,36 +157,112 @@ const GRAVIRANJE = 5;
 const ROK_DANA = 14;          // radnih dana
 const PODSJETNIK_DANA = 42;   // 6 sedmica
 const MJESECI = ['januar', 'februar', 'mart', 'april', 'maj', 'jun', 'jul', 'avgust', 'septembar', 'oktobar', 'novembar', 'decembar'];
-const TABS = [['rodjendani', 'Rođendani'], ['rokovi', 'Rokovi'], ['klijenti', 'Klijenti'], ['snimanja', 'Snimanja'], ['statistika', 'Statistika'], ['kopija', 'Rezervna kopija']];
+const TABS = [['rodjendani', 'Rođendani'], ['rokovi', 'Rokovi'], ['klijenti', 'Klijenti'], ['fotosesije', 'Fotosesije'], ['statistika', 'Statistika'], ['kopija', 'Rezervna kopija']];
 
-/* ---------- Podaci ---------- */
-let storageOk = true;
-let db = load();
+/* ---------- Stanje ---------- */
+let mode = 'loading';      // 'cloud' (baza na claude.ai) | 'local' (localStorage)
+let loaded = false;
+let store = null, downloads = null;
+let db = empty();
 let tab = 'rodjendani';
 const ui = { q: '', fStatus: '', fVrsta: '', fGod: '', statGod: String(new Date().getFullYear()) };
+const synced = { clients: {}, children: {}, shoots: {}, meta: '' };
+const docChains = {};
+let pendingWrites = 0, writeError = '';
 
 function empty() {
-  return { version: 1, clients: [], children: [], shoots: [], projekti: PROJEKTI.slice(), bdayDone: {}, lastBackup: null, changes: 0 };
+  return { clients: [], children: [], shoots: [], projekti: PROJEKTI.slice(), bdayDone: {}, lastBackup: null, changes: 0 };
+}
+function metaOf(d) {
+  return {
+    projekti: Array.isArray(d.projekti) && d.projekti.length ? d.projekti : PROJEKTI.slice(),
+    bdayDone: d.bdayDone && typeof d.bdayDone === 'object' ? d.bdayDone : {},
+    lastBackup: d.lastBackup || null,
+    changes: Number(d.changes) || 0
+  };
 }
 function normalize(d) {
-  const e = empty();
-  return Object.assign(e, d, {
-    clients: d.clients || [], children: d.children || [], shoots: d.shoots || [],
-    projekti: d.projekti && d.projekti.length ? d.projekti : e.projekti,
-    bdayDone: d.bdayDone || {}
-  });
+  return Object.assign({ clients: d.clients || [], children: d.children || [], shoots: d.shoots || [] }, metaOf(d));
 }
-function load() {
-  try {
-    const s = localStorage.getItem(KEY);
-    return s ? normalize(JSON.parse(s)) : empty();
-  } catch (e) { storageOk = false; return empty(); }
+function exportObj() {
+  return Object.assign({ version: 1, clients: db.clients, children: db.children, shoots: db.shoots }, metaOf(db));
+}
+
+/* ---------- Čuvanje ---------- */
+async function start() {
+  const c = window.claude;
+  if (c && typeof c.use === 'function') {
+    try { store = await c.use('db'); } catch (e) { store = null; }
+    try { downloads = await c.use('downloads'); } catch (e) { downloads = null; }
+  }
+  if (!store) { startLocal(); return; }
+  mode = 'cloud';
+  let pending = 4;
+  const firstDone = () => { if (--pending === 0) { loaded = true; render(); } };
+  for (const key of Object.keys(COLS)) {
+    let first = true;
+    store.collection(COLS[key]).limit(1000).onSnapshot(snap => {
+      const arr = [], m = {};
+      for (const d of snap.docs) {
+        if (!d.exists) continue;
+        const o = Object.assign({}, d.data(), { id: d.id });
+        arr.push(o); m[d.id] = JSON.stringify(o);
+      }
+      synced[key] = m; db[key] = arr;
+      if (first) { first = false; firstDone(); } else if (loaded) render();
+    }, onDbError);
+  }
+  let firstMeta = true;
+  store.doc('meta/main').onSnapshot(s => {
+    const m = metaOf(s.exists ? s.data() : {});
+    synced.meta = JSON.stringify(m); Object.assign(db, m);
+    if (firstMeta) { firstMeta = false; firstDone(); } else if (loaded) render();
+  }, onDbError);
+}
+function startLocal() {
+  mode = 'local';
+  try { const s = localStorage.getItem(LOCAL_KEY); if (s) db = normalize(JSON.parse(s)); }
+  catch (e) { writeError = 'Ovaj browser ne dozvoljava čuvanje podataka.'; }
+  loaded = true; render();
+}
+function onDbError(e) {
+  writeError = 'Veza sa bazom je prekinuta (' + (e && e.code || 'greška') + '). Osvježite stranicu.';
+  renderStatus();
+}
+function writeDoc(path, body) {
+  pendingWrites++; renderStatus();
+  const run = attempt => {
+    const ref = store.doc(path);
+    return (body ? ref.set(body) : ref.delete()).catch(e => {
+      if (e && e.code === 'unavailable' && attempt === 0) return new Promise(r => setTimeout(r, 800 + Math.random() * 800)).then(() => run(1));
+      throw e;
+    });
+  };
+  docChains[path] = (docChains[path] || Promise.resolve()).then(() => run(0))
+    .catch(e => { writeError = 'Promjena nije sačuvana (' + (e && e.code || 'greška') + '). Osvježite stranicu i pokušajte ponovo.'; })
+    .finally(() => { pendingWrites--; renderStatus(); });
 }
 function persist() {
-  try { localStorage.setItem(KEY, JSON.stringify(db)); storageOk = true; }
-  catch (e) { storageOk = false; }
+  if (mode === 'local') {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(exportObj())); }
+    catch (e) { writeError = 'Ovaj browser ne dozvoljava čuvanje podataka.'; }
+    return;
+  }
+  if (mode !== 'cloud') return;
+  for (const key of Object.keys(COLS)) {
+    const cur = {};
+    for (const r of db[key]) cur[r.id] = JSON.stringify(r);
+    for (const id in cur) if (cur[id] !== synced[key][id]) { synced[key][id] = cur[id]; writeDoc(COLS[key] + '/' + id, JSON.parse(cur[id])); }
+    for (const id of Object.keys(synced[key])) if (!(id in cur)) { delete synced[key][id]; writeDoc(COLS[key] + '/' + id, null); }
+  }
+  const m = JSON.stringify(metaOf(db));
+  if (m !== synced.meta) { synced.meta = m; writeDoc('meta/main', JSON.parse(m)); }
 }
 function commit() { db.changes = (db.changes || 0) + 1; persist(); render(); }
+function putRec(key, rec) {
+  const i = db[key].findIndex(x => x.id === rec.id);
+  if (i >= 0) db[key][i] = rec; else db[key].push(rec);
+}
 
 /* ---------- Pomoćne ---------- */
 const $ = s => document.querySelector(s);
@@ -159,6 +272,8 @@ const val = id => { const el = document.getElementById(id); return el ? el.value
 const chk = id => { const el = document.getElementById(id); return !!(el && el.checked); };
 const radio = name => { const el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ''; };
 const eur = n => (Math.round(n * 100) / 100).toLocaleString('sr-ME') + ' €';
+const plural = (n, one, few, many) => { const a = n % 10, b = n % 100; return a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many; };
+const nFoto = n => n + ' ' + plural(n, 'fotosesija', 'fotosesije', 'fotosesija');
 
 function todayD() { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }
 function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
@@ -170,7 +285,7 @@ function fmt(s) {
   return '≈ ' + s + '.';
 }
 function validDate(y, m, d) { const x = new Date(y, m - 1, d); return x.getFullYear() === y && x.getMonth() === m - 1 && x.getDate() === d; }
-// "16.06.2025" | "06.2025" | "2025" | "2025-06-16" → ISO (djelimični) ; '' = prazno ; null = greška
+// "16.06.2025" | "06.2025" | "2025" | "2025-06-16" → ISO (djelimični); '' = prazno; null = greška
 function parseDob(str) {
   str = (str || '').trim().replace(/\.$/, '');
   if (!str) return '';
@@ -182,6 +297,7 @@ function parseDob(str) {
   if ((m = str.match(/^(\d{4})$/))) return str;
   return null;
 }
+const DOB_ERR = 'Datum rođenja: upišite kao 16.06.2025, ili samo mjesec 06.2025, ili godinu 2025.';
 function dobInput(s) {
   if (!s) return '';
   if (s.length === 10) return s.slice(8) + '.' + s.slice(5, 7) + '.' + s.slice(0, 4);
@@ -191,9 +307,18 @@ function dobInput(s) {
 function cleanIg(s) {
   return (s || '').trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/[?#].*$/, '').replace(/\/+$/, '').replace(/^@/, '');
 }
-function toast(msg) {
-  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-  document.body.appendChild(t); setTimeout(() => t.remove(), 2200);
+function toast(msg, isErr) {
+  const t = document.createElement('div'); t.className = 'toast' + (isErr ? ' err' : ''); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), isErr ? 4500 : 2200);
+}
+// potvrda unutar stranice (browser dijalozi ovdje ne rade)
+function ask(msg, yesLabel, onYes) {
+  $('#confirmMsg').textContent = msg;
+  $('#confirmYes').textContent = yesLabel;
+  $('#confirm').hidden = false;
+  $('#confirmYes').focus();
+  $('#confirmYes').onclick = () => { $('#confirm').hidden = true; onYes(); };
+  $('#confirmNo').onclick = () => { $('#confirm').hidden = true; };
 }
 
 const clientById = id => db.clients.find(c => c.id === id);
@@ -202,6 +327,7 @@ const shootsOf = cid => db.shoots.filter(s => s.clientId === cid);
 const isRepeat = cid => shootsOf(cid).filter(s => s.status !== 'Otkazano').length >= 2;
 const kidName = k => k.ime || '(ime nepoznato)';
 const byName = (a, b) => (a.ime || '').localeCompare(b.ime || '', 'sr');
+const hasIznos = s => !(s.iznos === '' || s.iznos == null);
 
 function contactHtml(c) {
   const p = [];
@@ -226,6 +352,7 @@ function knjigaTag(s) {
   if (s.knjiga === 'ponudjena') return '<span class="tag orange">ponuđena</span>';
   return '';
 }
+const table = inner => '<div class="tw"><table>' + inner + '</table></div>';
 
 /* ---------- Rokovi (14 radnih dana, bez subote i nedjelje) ---------- */
 function addWorkdays(isoS, n) {
@@ -244,12 +371,12 @@ function rokLeft(rokIso) {
   return n;
 }
 function rokText(left) {
-  if (left < 0) return 'kasni ' + (-left) + ' dan' + (-left === 1 ? '' : 'a');
+  if (left < 0) return 'kasni ' + (-left) + ' ' + plural(-left, 'dan', 'dana', 'dana');
   if (left === 0) return 'danas';
-  return 'još ' + left + ' radn' + (left === 1 ? 'i dan' : 'ih dana');
+  return 'još ' + left + ' ' + plural(left, 'radni dan', 'radna dana', 'radnih dana');
 }
 function activeRokovi() {
-  return db.shoots.filter(s => !ZAVRSENO.includes(s.status) && s.status && rokOf(s))
+  return db.shoots.filter(s => s.status && !ZAVRSENO.includes(s.status) && rokOf(s))
     .map(s => ({ s, rok: rokOf(s), left: rokLeft(rokOf(s)) }))
     .sort((a, b) => a.rok.localeCompare(b.rok));
 }
@@ -277,32 +404,39 @@ function activeBdays() {
     .sort((a, b) => (a.done - b.done) || (a.b.date - b.b.date));
 }
 
-/* ---------- Render ---------- */
+/* ---------- Prikaz ---------- */
+function renderStatus() {
+  const el = $('#sync');
+  if (writeError) { el.className = 'sync err'; el.textContent = '⚠ ' + writeError; return; }
+  el.className = 'sync';
+  el.textContent = mode === 'cloud' ? (pendingWrites ? 'Čuvanje…' : '✓ Sačuvano') : mode === 'local' ? 'Lokalno (samo ovaj browser)' : '';
+}
 function render() {
+  renderStatus();
+  if (!loaded) return;
   const bd = activeBdays().filter(x => !x.done).length;
   const hot = activeRokovi().filter(x => x.left <= 3).length;
   $('#nav').innerHTML = TABS.map(([id, name]) => {
     let b = '';
     if (id === 'rodjendani' && bd) b = '<span class="badge">' + bd + '</span>';
     if (id === 'rokovi' && hot) b = '<span class="badge red">' + hot + '</span>';
-    return '<button data-tab="' + id + '" class="' + (tab === id ? 'on' : '') + '">' + name + b + '</button>';
+    return '<button type="button" data-tab="' + id + '" class="' + (tab === id ? 'on' : '') + '">' + name + b + '</button>';
   }).join('');
   renderBanner();
+  const q = document.activeElement && document.activeElement.id === 'q' ? document.activeElement : null;
+  const pos = q ? q.selectionStart : 0;
   $('#main').innerHTML = VIEWS[tab]();
-  if (tab === 'klijenti' || tab === 'snimanja') {
-    const q = document.getElementById('q');
-    if (q && document.activeElement !== q && ui.focusSearch) { q.focus(); q.setSelectionRange(q.value.length, q.value.length); ui.focusSearch = false; }
-  }
+  if (q) { const nq = document.getElementById('q'); if (nq) { nq.focus(); nq.setSelectionRange(pos, pos); } }
 }
 function renderBanner() {
   let h = '';
-  if (!storageOk) {
-    h = '<div class="banner err"><b>Pažnja:</b> ovaj browser ne dozvoljava čuvanje podataka. Otvorite fajl u Chrome ili Edge browseru.</div>';
+  if (mode === 'local' && window.claude) {
+    h = '<div class="banner err"><b>Baza nije dostupna.</b> Podaci se sada čuvaju samo u ovom browseru. Osvježite stranicu.</div>';
   } else if (db.clients.length && db.changes > 0) {
     const days = db.lastBackup ? Math.floor((todayD() - parseIso(db.lastBackup.slice(0, 10))) / 864e5) : null;
     if (days === null || days >= 7) {
       h = '<div class="banner warn">' + (days === null ? 'Još niste napravili rezervnu kopiju.' : 'Posljednja rezervna kopija: prije ' + days + ' dana.') +
-        ' <button class="small primary" data-act="backup">Sačuvaj kopiju sada</button></div>';
+        ' <button type="button" class="small primary" data-act="backup">Sačuvaj kopiju sada</button></div>';
     }
   }
   $('#banner').innerHTML = h;
@@ -311,53 +445,53 @@ function renderBanner() {
 const VIEWS = {
   rodjendani() {
     const rows = activeBdays();
-    let h = '<h1>Rođendani — narednih 6 sedmica</h1><p class="hint">Dijete se pojavljuje ovdje 6 sedmica prije rođendana. Ako je poznat samo mjesec rođenja (≈), podsjetnik počinje 6 sedmica prije 1. u tom mjesecu. Kad ponudite snimanje, kliknite „Ponuđeno“.</p>';
+    let h = '<h1>Rođendani u narednih 6 sedmica</h1><p class="hint">Dijete se pojavljuje ovdje 6 sedmica prije rođendana. Ako je poznat samo mjesec rođenja (≈), podsjetnik počinje 6 sedmica prije 1. u tom mjesecu. Kad ponudite fotosesiju, kliknite „Ponuđeno“.</p>';
     if (!rows.length) h += '<div class="empty">Nema rođendana u narednih 6 sedmica.</div>';
     else {
-      h += '<table><tr><th>Rođendan</th><th>Dijete</th><th>Puni</th><th>Klijentkinja</th><th>Kontakt</th><th></th></tr>';
+      let t = '<tr><th>Rođendan</th><th>Dijete</th><th>Puni</th><th>Klijentkinja</th><th>Kontakt</th><th></th></tr>';
       for (const { k, b, done } of rows) {
         const c = clientById(k.clientId) || {};
         const when = b.approx ? '≈ ' + MJESECI[b.date.getMonth()] + ' ' + b.Y + '.' : fmt(iso(b.date));
         const rel = b.approx ? (b.days > 0 ? 'mjesec počinje za ' + b.days + ' d.' : 'ovog mjeseca') : (b.days === 0 ? 'danas!' : 'za ' + b.days + ' d.');
-        h += '<tr class="' + (done ? 'done' : b.days <= 14 ? 'hot' : '') + '"><td>' + when + '<br><span class="muted">' + rel + '</span></td>' +
+        t += '<tr class="' + (done ? 'done' : b.days <= 14 ? 'hot' : '') + '"><td>' + when + '<br><span class="muted">' + rel + '</span></td>' +
           '<td>' + esc(kidName(k)) + (k.napomena ? '<br><span class="muted">' + esc(k.napomena) + '</span>' : '') + '</td>' +
           '<td>' + (b.age === 1 ? '<span class="tag acc">1. rođendan</span>' : b.age + '. rođendan') + '</td>' +
-          '<td><button class="link" data-act="client" data-id="' + c.id + '">' + esc(c.ime) + '</button></td>' +
+          '<td><button type="button" class="link" data-act="client" data-id="' + esc(c.id) + '">' + esc(c.ime) + '</button></td>' +
           '<td>' + contactHtml(c) + '</td>' +
-          '<td>' + (done ? '<button class="small" data-act="bdayUndo" data-key="' + b.key + '">Poništi</button>' : '<button class="small primary" data-act="bdayDone" data-key="' + b.key + '">Ponuđeno ✓</button>') + '</td></tr>';
+          '<td>' + (done ? '<button type="button" class="small" data-act="bdayUndo" data-key="' + esc(b.key) + '">Poništi</button>' : '<button type="button" class="small primary" data-act="bdayDone" data-key="' + esc(b.key) + '">Ponuđeno ✓</button>') + '</td></tr>';
       }
-      h += '</table>';
+      h += table(t);
     }
     const missing = db.children.filter(k => !k.dob || k.dob.length === 4).sort((a, b) => byName(clientById(a.clientId) || {}, clientById(b.clientId) || {}));
     h += '<h2>Djeca bez datuma rođenja (' + missing.length + ')</h2><p class="hint">Za ovu djecu podsjetnik ne može da radi. Kad saznate datum, upišite ga u karticu klijentkinje.</p>';
     if (missing.length) {
-      h += '<table><tr><th>Dijete</th><th>Upisano</th><th>Klijentkinja</th></tr>';
+      let t = '<tr><th>Dijete</th><th>Upisano</th><th>Klijentkinja</th></tr>';
       for (const k of missing) {
         const c = clientById(k.clientId) || {};
-        h += '<tr class="click" data-act="client" data-id="' + c.id + '"><td>' + esc(kidName(k)) + '</td><td>' + esc([fmt(k.dob), k.dobNapomena].filter(Boolean).join(' · ')) + '</td><td>' + esc(c.ime) + '</td></tr>';
+        t += '<tr class="click" data-act="client" data-id="' + esc(c.id) + '"><td>' + esc(kidName(k)) + '</td><td>' + esc([fmt(k.dob), k.dobNapomena].filter(Boolean).join(' · ')) + '</td><td>' + esc(c.ime) + '</td></tr>';
       }
-      h += '</table>';
+      h += table(t);
     }
     return h;
   },
 
   rokovi() {
     const rows = activeRokovi();
-    let h = '<h1>Rokovi predaje</h1><p class="hint">Rok = 14 radnih dana (bez subote i nedjelje) od datuma izbora fotografija; za „Događaj“ — od datuma snimanja. <span class="tag red">crveno</span> kasni ili je danas, <span class="tag orange">narandžasto</span> 3 radna dana ili manje.</p>';
+    let h = '<h1>Rokovi predaje</h1><p class="hint">Rok = 14 radnih dana (bez subote i nedjelje) od datuma izbora fotografija; za „Događaj“ — od datuma fotosesije. <span class="tag red">crveno</span> kasni ili je danas, <span class="tag orange">narandžasto</span> 3 radna dana ili manje.</p>';
     if (!rows.length) h += '<div class="empty">Nema otvorenih rokova.</div>';
     else {
-      h += '<table><tr><th>Rok</th><th>Preostalo</th><th>Klijentkinja</th><th>Vrsta</th><th>Status</th><th>Računa se od</th></tr>';
+      let t = '<tr><th>Rok</th><th>Preostalo</th><th>Klijentkinja</th><th>Vrsta</th><th>Status</th><th>Računa se od</th></tr>';
       for (const { s, rok, left } of rows) {
         const c = clientById(s.clientId) || {};
-        h += '<tr class="click ' + (left <= 0 ? 'late' : left <= 3 ? 'hot' : '') + '" data-act="shoot" data-id="' + s.id + '"><td><b>' + fmt(rok) + '</b></td><td>' + rokText(left) + '</td><td>' + esc(c.ime) + '</td><td>' + esc(vrstaLabel(s)) + '</td><td>' + statusTag(s) + '</td><td>' + fmt(rokStart(s)) + ' <span class="muted">(' + (s.vrsta === 'Događaj' ? 'snimanje' : 'izbor') + ')</span></td></tr>';
+        t += '<tr class="click ' + (left <= 0 ? 'late' : left <= 3 ? 'hot' : '') + '" data-act="shoot" data-id="' + esc(s.id) + '"><td><b>' + fmt(rok) + '</b></td><td>' + rokText(left) + '</td><td>' + esc(c.ime) + '</td><td>' + esc(vrstaLabel(s)) + '</td><td>' + statusTag(s) + '</td><td>' + fmt(rokStart(s)) + ' <span class="muted">(' + (s.vrsta === 'Događaj' ? 'fotosesija' : 'izbor') + ')</span></td></tr>';
       }
-      h += '</table>';
+      h += table(t);
     }
     const waiting = db.shoots.filter(s => s.status === 'Snimljeno' && s.vrsta !== 'Događaj' && !s.datumIzbora);
     if (waiting.length) {
-      h += '<h2>Snimljeno, čeka se izbor fotografija (' + waiting.length + ')</h2><p class="hint">Rok počinje kad upišete datum izbora.</p><table><tr><th>Datum snimanja</th><th>Klijentkinja</th><th>Vrsta</th></tr>';
-      for (const s of waiting) h += '<tr class="click" data-act="shoot" data-id="' + s.id + '"><td>' + (fmt(s.datum) || '—') + '</td><td>' + esc((clientById(s.clientId) || {}).ime) + '</td><td>' + esc(vrstaLabel(s)) + '</td></tr>';
-      h += '</table>';
+      let t = '<tr><th>Datum fotosesije</th><th>Klijentkinja</th><th>Vrsta</th></tr>';
+      for (const s of waiting) t += '<tr class="click" data-act="shoot" data-id="' + esc(s.id) + '"><td>' + (fmt(s.datum) || '—') + '</td><td>' + esc((clientById(s.clientId) || {}).ime) + '</td><td>' + esc(vrstaLabel(s)) + '</td></tr>';
+      h += '<h2>Snimljeno, čeka se izbor fotografija (' + waiting.length + ')</h2><p class="hint">Rok počinje kad upišete datum izbora.</p>' + table(t);
     }
     return h;
   },
@@ -369,18 +503,17 @@ const VIEWS = {
       const kids = kidsOf(c.id).map(k => k.ime).join(' ');
       return [c.ime, c.instagram, c.telefon, c.telegram, c.napomena, kids].join(' ').toLowerCase().includes(q);
     }).sort(byName);
-    let h = '<h1>Klijenti (' + db.clients.length + ')</h1><div class="toolbar"><input id="q" placeholder="Traži: ime, dijete, Instagram, telefon…" value="' + esc(ui.q) + '" style="min-width:320px"><button data-act="newClient">+ Nova klijentkinja</button></div>';
-    if (!list.length) return h + '<div class="empty">' + (db.clients.length ? 'Nema rezultata.' : 'Još nema klijenata. Dodajte upit ili uvezite podatke u „Rezervna kopija“.') + '</div>';
-    h += '<table><tr><th>Ime</th><th>Kontakt</th><th>Izvor</th><th>Jezik</th><th>Djeca</th><th class="num">Snimanja</th></tr>';
+    let h = '<h1>Klijenti (' + db.clients.length + ')</h1><div class="toolbar"><input id="q" placeholder="Traži: ime, dijete, Instagram, telefon…" value="' + esc(ui.q) + '" style="width:340px"><button type="button" data-act="newClient">+ Nova klijentkinja</button></div>';
+    if (!list.length) return h + '<div class="empty">' + (db.clients.length ? 'Nema rezultata.' : 'Još nema klijenata. Dodajte prvi upit dugmetom „+ Novi upit“.') + '</div>';
+    let t = '<tr><th>Ime</th><th>Kontakt</th><th>Izvor</th><th>Jezik</th><th>Djeca</th><th class="num">Fotosesije</th></tr>';
     for (const c of list) {
       const kids = kidsOf(c.id).map(k => esc(kidName(k)) + (k.dob ? ' <span class="muted">' + fmt(k.dob) + '</span>' : '')).join('<br>');
-      const n = shootsOf(c.id).length;
-      h += '<tr class="click" data-act="client" data-id="' + c.id + '"><td><b>' + esc(c.ime) + '</b>' + (isRepeat(c.id) ? ' <span class="tag acc">ponovni</span>' : '') + '</td><td>' + contactHtml(c) + '</td><td>' + esc(c.izvor || '') + '</td><td>' + esc(c.jezik || '') + '</td><td>' + kids + '</td><td class="num">' + n + '</td></tr>';
+      t += '<tr class="click" data-act="client" data-id="' + esc(c.id) + '"><td><b>' + esc(c.ime) + '</b>' + (isRepeat(c.id) ? ' <span class="tag acc">ponovni</span>' : '') + '</td><td>' + contactHtml(c) + '</td><td>' + esc(c.izvor || '') + '</td><td>' + esc(c.jezik || '') + '</td><td>' + kids + '</td><td class="num">' + shootsOf(c.id).length + '</td></tr>';
     }
-    return h + '</table>';
+    return h + table(t);
   },
 
-  snimanja() {
+  fotosesije() {
     const years = [...new Set(db.shoots.map(s => (s.datum || '').slice(0, 4)).filter(Boolean))].sort().reverse();
     const q = ui.q.toLowerCase();
     const list = db.shoots.filter(s => {
@@ -391,25 +524,25 @@ const VIEWS = {
       return true;
     }).sort((a, b) => (b.datum || '').localeCompare(a.datum || '') || byName(clientById(a.clientId) || {}, clientById(b.clientId) || {}));
     const opt = (arr, cur, all) => '<option value="">' + all + '</option>' + arr.map(x => '<option' + (x === cur ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
-    let h = '<h1>Snimanja (' + db.shoots.length + ')</h1><div class="toolbar">' +
+    let h = '<h1>Fotosesije (' + db.shoots.length + ')</h1><div class="toolbar">' +
       '<input id="q" placeholder="Traži po imenu…" value="' + esc(ui.q) + '">' +
-      '<select id="fStatus">' + opt(STATUSI, ui.fStatus, 'Svi statusi') + '<option value="—"' + (ui.fStatus === '—' ? ' selected' : '') + '>Bez statusa</option></select>' +
-      '<select id="fVrsta">' + opt(VRSTE, ui.fVrsta, 'Sve vrste') + '</select>' +
-      '<select id="fGod">' + opt(years, ui.fGod, 'Sve godine') + '<option value="bez"' + (ui.fGod === 'bez' ? ' selected' : '') + '>Bez datuma</option></select>' +
+      '<select id="fStatus" aria-label="Status">' + opt(STATUSI, ui.fStatus, 'Svi statusi') + '<option value="—"' + (ui.fStatus === '—' ? ' selected' : '') + '>Bez statusa</option></select>' +
+      '<select id="fVrsta" aria-label="Vrsta">' + opt(VRSTE, ui.fVrsta, 'Sve vrste') + '</select>' +
+      '<select id="fGod" aria-label="Godina">' + opt(years, ui.fGod, 'Sve godine') + '<option value="bez"' + (ui.fGod === 'bez' ? ' selected' : '') + '>Bez datuma</option></select>' +
       '<span class="muted">' + list.length + ' prikazano</span></div>';
-    if (!list.length) return h + '<div class="empty">Nema snimanja.</div>';
-    h += '<table><tr><th>Datum</th><th>Klijentkinja</th><th>Vrsta</th><th>Status</th><th class="num">Iznos</th><th>Rok</th><th>Foto-knjiga</th><th>Recenzija</th></tr>';
+    if (!list.length) return h + '<div class="empty">Nema fotosesija.</div>';
+    let t = '<tr><th>Datum</th><th>Klijentkinja</th><th>Vrsta</th><th>Status</th><th class="num">Iznos</th><th>Rok</th><th>Foto-knjiga</th><th>Recenzija</th></tr>';
     for (const s of list) {
       const c = clientById(s.clientId) || {};
       const rok = rokOf(s);
       let rokH = '';
       if (rok) {
-        if (ZAVRSENO.includes(s.status)) rokH = '<span class="muted">' + fmt(rok) + '</span>';
+        if (ZAVRSENO.includes(s.status) || !s.status) rokH = '<span class="muted">' + fmt(rok) + '</span>';
         else { const l = rokLeft(rok); rokH = '<span class="tag ' + (l <= 0 ? 'red' : l <= 3 ? 'orange' : '') + '">' + fmt(rok) + '</span>'; }
       }
-      h += '<tr class="click" data-act="shoot" data-id="' + s.id + '"><td>' + (fmt(s.datum) || '<span class="muted">—</span>') + (s.izTabele ? '<br><span class="tag">iz tabele</span>' : '') + '</td><td>' + esc(c.ime) + '</td><td>' + esc(vrstaLabel(s)) + '</td><td>' + statusTag(s) + '</td><td class="num">' + (s.iznos === '' || s.iznos == null ? '' : eur(Number(s.iznos))) + '</td><td>' + rokH + '</td><td>' + knjigaTag(s) + '</td><td>' + (s.recenzija ? '<span class="tag green">da</span>' : '') + '</td></tr>';
+      t += '<tr class="click" data-act="shoot" data-id="' + esc(s.id) + '"><td>' + (fmt(s.datum) || '<span class="muted">—</span>') + (s.izTabele ? '<br><span class="tag">iz tabele</span>' : '') + '</td><td>' + esc(c.ime) + '</td><td>' + esc(vrstaLabel(s)) + '</td><td>' + statusTag(s) + '</td><td class="num">' + (hasIznos(s) ? eur(Number(s.iznos)) : '') + '</td><td>' + rokH + '</td><td>' + knjigaTag(s) + '</td><td>' + (s.recenzija ? '<span class="tag green">da</span>' : '') + '</td></tr>';
     }
-    return h + '</table>';
+    return h + table(t);
   },
 
   statistika() {
@@ -419,101 +552,107 @@ const VIEWS = {
     const noDate = db.shoots.filter(s => !s.datum).length;
     const sum = arr => arr.reduce((a, s) => a + prihod(s), 0);
     const now = new Date(), curM = Y === String(now.getFullYear()) ? now.getMonth() : -1;
+    const inMonth = m => inYear.filter(s => +s.datum.slice(5, 7) - 1 === m);
     let h = '<h1>Statistika</h1><div class="toolbar"><label style="margin:0">Godina <select id="statGod">' + years.map(y => '<option' + (y === Y ? ' selected' : '') + '>' + y + '</option>').join('') + '</select></label></div>';
-    h += '<p class="hint">Računaju se snimanja sa upisanim datumom (bez otkazanih). Prihod = iznos snimanja + kupljena foto-knjiga.' + (noDate ? ' Snimanja bez datuma (' + noDate + ', uglavnom iz stare tabele) nisu uračunata.' : '') + '</p>';
+    h += '<p class="hint">Računaju se fotosesije sa upisanim datumom (bez otkazanih). Prihod = iznos fotosesije + kupljena foto-knjiga.' + (noDate ? ' Fotosesije bez datuma (' + noDate + ', uglavnom iz stare tabele) nisu uračunate.' : '') + '</p>';
     h += '<div class="kpis"><div class="kpi"><b>' + eur(sum(inYear)) + '</b><span>prihod ' + Y + '.</span></div>';
-    if (curM >= 0) { const m = inYear.filter(s => +s.datum.slice(5, 7) - 1 === curM); h += '<div class="kpi"><b>' + eur(sum(m)) + '</b><span>' + MJESECI[curM] + ' (' + m.length + ' snim.)</span></div>'; }
-    h += '<div class="kpi"><b>' + inYear.length + '</b><span>snimanja ' + Y + '.</span></div></div>';
+    if (curM >= 0) { const m = inMonth(curM); h += '<div class="kpi"><b>' + eur(sum(m)) + '</b><span>' + MJESECI[curM] + ' · ' + nFoto(m.length) + '</span></div>'; }
+    h += '<div class="kpi"><b>' + inYear.length + '</b><span>' + plural(inYear.length, 'fotosesija', 'fotosesije', 'fotosesija') + ' u ' + Y + '.</span></div></div>';
 
-    // po mjesecima
-    h += '<div class="cols"><div><h2>Po mjesecima</h2><table><tr><th>Mjesec</th><th class="num">Snimanja</th><th class="num">Prihod</th></tr>';
+    let t = '<tr><th>Mjesec</th><th class="num">Fotosesije</th><th class="num">Prihod</th></tr>';
     for (let m = 0; m < 12; m++) {
-      const arr = inYear.filter(s => +s.datum.slice(5, 7) - 1 === m);
-      h += '<tr' + (m === curM ? ' class="hot"' : '') + '><td>' + MJESECI[m] + '</td><td class="num">' + (arr.length || '') + '</td><td class="num">' + (arr.length ? eur(sum(arr)) : '') + '</td></tr>';
+      const arr = inMonth(m);
+      t += '<tr' + (m === curM ? ' class="hot"' : '') + '><td>' + MJESECI[m] + '</td><td class="num">' + (arr.length || '') + '</td><td class="num">' + (arr.length ? eur(sum(arr)) : '') + '</td></tr>';
     }
-    h += '<tr><td><b>Ukupno</b></td><td class="num"><b>' + inYear.length + '</b></td><td class="num"><b>' + eur(sum(inYear)) + '</b></td></tr></table></div>';
+    t += '<tr><td><b>Ukupno</b></td><td class="num"><b>' + inYear.length + '</b></td><td class="num"><b>' + eur(sum(inYear)) + '</b></td></tr>';
+    h += '<div class="cols"><div><h2>Po mjesecima</h2>' + table(t) + '</div>';
 
-    // po vrsti
-    h += '<div><h2>Po vrsti snimanja</h2><table><tr><th>Vrsta</th><th class="num">Snimanja</th><th class="num">Prihod</th><th class="num">Prosjek</th></tr>';
+    t = '<tr><th>Vrsta</th><th class="num">Fotosesije</th><th class="num">Prihod</th><th class="num">Prosjek</th></tr>';
     const vrsteRows = VRSTE.concat(['']).map(v => { const arr = inYear.filter(s => (s.vrsta || '') === v); return { v, arr, p: sum(arr) }; }).filter(r => r.arr.length).sort((a, b) => b.p - a.p);
-    for (const r of vrsteRows) h += '<tr><td>' + esc(r.v || 'Nije upisano') + '</td><td class="num">' + r.arr.length + '</td><td class="num">' + eur(r.p) + '</td><td class="num">' + eur(r.p / r.arr.length) + '</td></tr>';
-    if (!vrsteRows.length) h += '<tr><td colspan="4" class="muted">Nema podataka za ' + Y + '.</td></tr>';
-    h += '</table>';
-
-    // projekti
+    for (const r of vrsteRows) t += '<tr><td>' + esc(r.v || 'Nije upisano') + '</td><td class="num">' + r.arr.length + '</td><td class="num">' + eur(r.p) + '</td><td class="num">' + eur(r.p / r.arr.length) + '</td></tr>';
+    if (!vrsteRows.length) t += '<tr><td colspan="4" class="muted">Nema podataka za ' + Y + '.</td></tr>';
+    h += '<div><h2>Po vrsti fotosesije</h2>' + table(t);
     const proj = inYear.filter(s => s.vrsta === 'Projekat');
     if (proj.length) {
-      h += '<h2>Projekti</h2><table><tr><th>Projekat</th><th class="num">Snimanja</th><th class="num">Prihod</th></tr>';
-      const names = [...new Set(proj.map(s => s.projekat || ''))];
-      for (const n of names) { const arr = proj.filter(s => (s.projekat || '') === n); h += '<tr><td>' + esc(n || 'Nije upisano') + '</td><td class="num">' + arr.length + '</td><td class="num">' + eur(sum(arr)) + '</td></tr>'; }
-      h += '</table>';
+      t = '<tr><th>Projekat</th><th class="num">Fotosesije</th><th class="num">Prihod</th></tr>';
+      for (const n of [...new Set(proj.map(s => s.projekat || ''))]) { const arr = proj.filter(s => (s.projekat || '') === n); t += '<tr><td>' + esc(n || 'Nije upisano') + '</td><td class="num">' + arr.length + '</td><td class="num">' + eur(sum(arr)) + '</td></tr>'; }
+      h += '<h2>Projekti</h2>' + table(t);
     }
     h += '</div></div>';
 
-    // po izvoru
-    h += '<h2>Po izvoru prve prijave</h2><p class="hint">Klijentkinje — ukupno u bazi; snimanja i prihod — za ' + Y + '. godinu.</p><table><tr><th>Izvor</th><th class="num">Klijentkinje</th><th class="num">Snimanja ' + Y + '.</th><th class="num">Prihod ' + Y + '.</th><th class="num">Prihod po klijentkinji</th></tr>';
+    t = '<tr><th>Izvor</th><th class="num">Klijentkinje</th><th class="num">Fotosesije ' + Y + '.</th><th class="num">Prihod ' + Y + '.</th><th class="num">Po klijentkinji</th></tr>';
     const izvorOf = s => (clientById(s.clientId) || {}).izvor || '';
     for (const iz of IZVORI.concat([''])) {
       const nc = db.clients.filter(c => (c.izvor || '') === iz).length;
       const arr = inYear.filter(s => izvorOf(s) === iz);
       const payers = new Set(arr.map(s => s.clientId)).size;
       if (!nc && !arr.length) continue;
-      h += '<tr><td>' + esc(iz || 'Nije upisano') + '</td><td class="num">' + nc + '</td><td class="num">' + arr.length + '</td><td class="num">' + eur(sum(arr)) + '</td><td class="num">' + (payers ? eur(sum(arr) / payers) : '') + '</td></tr>';
+      t += '<tr><td>' + esc(iz || 'Nije upisano') + '</td><td class="num">' + nc + '</td><td class="num">' + arr.length + '</td><td class="num">' + eur(sum(arr)) + '</td><td class="num">' + (payers ? eur(sum(arr) / payers) : '') + '</td></tr>';
     }
-    h += '</table>';
+    h += '<h2>Po izvoru prve prijave</h2><p class="hint">Klijentkinje — ukupno u bazi; fotosesije i prihod — za ' + Y + '. godinu.</p>' + table(t);
 
-    // foto-knjige
     const pon = db.shoots.filter(s => s.knjiga === 'ponudjena');
     const kup = db.shoots.filter(s => s.knjiga === 'kupljena');
-    h += '<h2>Foto-knjige (sve godine)</h2><div class="kpis"><div class="kpi"><b>' + (pon.length + kup.length) + '</b><span>ponuđeno ukupno</span></div><div class="kpi"><b>' + kup.length + '</b><span>kupljeno' + (pon.length + kup.length ? ' (' + Math.round(100 * kup.length / (pon.length + kup.length)) + '%)' : '') + '</span></div><div class="kpi"><b>' + eur(kup.reduce((a, s) => a + knjigaCijena(s), 0)) + '</b><span>prihod od knjiga</span></div></div>';
+    const all = pon.length + kup.length;
+    h += '<h2>Foto-knjige (sve godine)</h2><div class="kpis"><div class="kpi"><b>' + all + '</b><span>ponuđeno ukupno</span></div><div class="kpi"><b>' + kup.length + '</b><span>kupljeno' + (all ? ' (' + Math.round(100 * kup.length / all) + '%)' : '') + '</span></div><div class="kpi"><b>' + eur(kup.reduce((a, s) => a + knjigaCijena(s), 0)) + '</b><span>prihod od knjiga</span></div></div>';
     if (kup.length) {
-      h += '<table><tr><th>Model</th><th class="num">Kupljeno</th><th class="num">Sa graviranjem</th></tr>';
-      for (const m of Object.keys(KNJIGE)) { const a = kup.filter(s => s.knjigaModel === m); if (a.length) h += '<tr><td>' + m + ' (' + KNJIGE[m] + ' €)</td><td class="num">' + a.length + '</td><td class="num">' + a.filter(s => s.graviranje).length + '</td></tr>'; }
-      h += '</table>';
+      t = '<tr><th>Model</th><th class="num">Kupljeno</th><th class="num">Sa graviranjem</th></tr>';
+      for (const m of Object.keys(KNJIGE)) { const a = kup.filter(s => s.knjigaModel === m); if (a.length) t += '<tr><td>' + m + ' (' + KNJIGE[m] + ' €)</td><td class="num">' + a.length + '</td><td class="num">' + a.filter(s => s.graviranje).length + '</td></tr>'; }
+      h += table(t);
     }
-    const lst = pon.concat(kup);
-    if (lst.length) {
-      h += '<h2>Kome je ponuđena / ko je kupio</h2><table><tr><th>Klijentkinja</th><th>Snimanje</th><th>Foto-knjiga</th><th class="num">Iznos</th></tr>';
-      for (const s of lst.sort((a, b) => (b.datum || '').localeCompare(a.datum || ''))) h += '<tr class="click" data-act="shoot" data-id="' + s.id + '"><td>' + esc((clientById(s.clientId) || {}).ime) + '</td><td>' + (fmt(s.datum) || '—') + ' · ' + esc(vrstaLabel(s)) + '</td><td>' + knjigaTag(s) + '</td><td class="num">' + (knjigaCijena(s) ? eur(knjigaCijena(s)) : '') + '</td></tr>';
-      h += '</table>';
+    if (all) {
+      t = '<tr><th>Klijentkinja</th><th>Fotosesija</th><th>Foto-knjiga</th><th class="num">Iznos</th></tr>';
+      for (const s of pon.concat(kup).sort((a, b) => (b.datum || '').localeCompare(a.datum || ''))) t += '<tr class="click" data-act="shoot" data-id="' + esc(s.id) + '"><td>' + esc((clientById(s.clientId) || {}).ime) + '</td><td>' + (fmt(s.datum) || '—') + ' · ' + esc(vrstaLabel(s)) + '</td><td>' + knjigaTag(s) + '</td><td class="num">' + (knjigaCijena(s) ? eur(knjigaCijena(s)) : '') + '</td></tr>';
+      h += '<h2>Kome je ponuđena / ko je kupio</h2>' + table(t);
     }
     return h;
   },
 
   kopija() {
-    return '<h1>Rezervna kopija</h1>' +
-      '<p>Svi podaci čuvaju se <b>samo u ovom browseru na ovom računaru</b>. Nigdje se ne šalju. Ako obrišete podatke browsera, promijenite browser ili računar, podaci se vraćaju samo iz rezervne kopije.</p>' +
-      '<p>Posljednja kopija: <b>' + (db.lastBackup ? fmt(db.lastBackup.slice(0, 10)) : 'nikad') + '</b>. U bazi: ' + db.clients.length + ' klijentkinja, ' + db.children.length + ' djece, ' + db.shoots.length + ' snimanja.</p>' +
-      '<div class="toolbar"><button class="primary" data-act="backup">⬇ Sačuvaj rezervnu kopiju</button>' +
-      '<label class="btn" style="margin:0;color:var(--ink);font-size:15px">⬆ Vrati iz kopije / uvezi<input type="file" id="importFile" accept=".json,application/json" style="display:none"></label></div>' +
-      '<p class="hint">Kopija je jedan .json fajl. Čuvajte ga na USB-u ili u svom privatnom oblaku. Vraćanje iz kopije <b>zamjenjuje</b> sve trenutne podatke.</p>';
+    const where = mode === 'cloud'
+      ? 'Podaci se čuvaju u <b>privatnoj bazi ove stranice na claude.ai</b>. Vidite ih samo vi, kad ste prijavljeni na svoj nalog, sa bilo kog računara. Rezervna kopija je dodatna sigurnost: fajl koji čuvate kod sebe.'
+      : 'Podaci se čuvaju <b>samo u ovom browseru na ovom računaru</b>. Ako obrišete podatke browsera, vraćaju se samo iz rezervne kopije.';
+    return '<h1>Rezervna kopija</h1><p style="max-width:75ch">' + where + '</p>' +
+      '<p>Posljednja kopija: <b>' + (db.lastBackup ? fmt(db.lastBackup.slice(0, 10)) : 'nikad') + '</b>. U bazi: ' + db.clients.length + ' klijentkinja, ' + db.children.length + ' djece, ' + nFoto(db.shoots.length) + '.</p>' +
+      '<div class="toolbar"><button type="button" class="primary" data-act="backup">⬇ Sačuvaj rezervnu kopiju</button>' +
+      '<label class="btn" style="margin:0;color:var(--ink);font-size:15px">⬆ Vrati iz kopije<input type="file" id="importFile" accept=".json,application/json" hidden></label></div>' +
+      '<p class="hint">Kopija je jedan .json fajl — čuvajte ga na USB-u ili u svom privatnom oblaku. Vraćanje iz kopije <b>zamjenjuje</b> sve trenutne podatke.</p>';
   }
 };
 
-/* ---------- Modal ---------- */
+/* ---------- Prozori ---------- */
 function openModal(html) {
   const old = $('#modalBox'), box = old.cloneNode(false); // svjež element, bez starih listenera
   old.replaceWith(box);
-  box.innerHTML = html; $('#modal').classList.remove('hidden'); const f = $('#modalBox [autofocus]'); if (f) f.focus(); }
-function closeModal() { $('#modal').classList.add('hidden'); $('#modalBox').innerHTML = ''; }
-const chips = (name, arr, cur) => '<div class="chips">' + arr.map(x => '<label><input type="radio" name="' + name + '" value="' + esc(x) + '"' + (x === cur ? ' checked' : '') + '><span>' + esc(x) + '</span></label>').join('') + '</div>';
+  box.innerHTML = html;
+  $('#modal').hidden = false;
+  const f = box.querySelector('[autofocus]'); if (f) f.focus();
+}
+function closeModal() { $('#modal').hidden = true; $('#modalBox').innerHTML = ''; }
+const chips = (name, arr, cur) => '<div class="chips">' + arr.map((x, i) => '<label><input type="radio" id="' + name + '_' + i + '" name="' + name + '" value="' + esc(x) + '"' + (x === cur ? ' checked' : '') + '><span>' + esc(x) + '</span></label>').join('') + '</div>';
 const selectOpts = (arr, cur, blank) => (blank != null ? '<option value="">' + blank + '</option>' : '') + arr.map(x => '<option' + (x === cur ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
 function projektSelect(id, cur) {
   const list = db.projekti.includes(cur) || !cur ? db.projekti : db.projekti.concat([cur]);
   return '<select id="' + id + '">' + selectOpts(list, cur, '— izaberite projekat —') + '<option value="__novi">+ novi projekat…</option></select>';
 }
+// "+ novi projekat" pretvara listu u polje za unos naziva
 function wireProjekat(selId, wrapId, vrstaGetter) {
   const wrap = document.getElementById(wrapId);
-  const upd = () => { wrap.style.display = vrstaGetter() === 'Projekat' ? '' : 'none'; };
+  const upd = () => { wrap.hidden = vrstaGetter() !== 'Projekat'; };
   upd();
   $('#modalBox').addEventListener('change', e => {
     upd();
     const sel = e.target;
     if (sel.id !== selId || sel.value !== '__novi') return;
-    const n = (prompt('Naziv novog projekta:') || '').trim();
-    if (n && !db.projekti.includes(n)) { db.projekti.push(n); persist(); }
-    sel.outerHTML = projektSelect(selId, n);
+    sel.outerHTML = '<input id="' + selId + '" placeholder="Naziv novog projekta">';
+    document.getElementById(selId).focus();
   });
+}
+function readProjekat(selId) {
+  const p = val(selId);
+  if (!p || p === '__novi') return '';
+  if (!db.projekti.includes(p)) db.projekti.push(p);
+  return p;
 }
 
 /* Brzi unos novog upita */
@@ -526,20 +665,20 @@ function openQuick() {
     '<div class="checks"><label><input type="checkbox" id="n_viber">Viber</label><label><input type="checkbox" id="n_wa">WhatsApp</label></div>' +
     '<p class="fieldtitle">Odakle je došla</p>' + chips('n_izvor', IZVORI, '') +
     '<p class="fieldtitle">Jezik</p>' + chips('n_jezik', JEZICI, '') + '</div>' +
-    '<p class="fieldtitle">Vrsta snimanja</p>' + chips('n_vrsta', VRSTE, '') +
+    '<p class="fieldtitle">Vrsta fotosesije</p>' + chips('n_vrsta', VRSTE, '') +
     '<div id="n_projwrap"><label>Projekat' + projektSelect('n_proj', '') + '</label></div>' +
     '<div id="n_oldkids"></div>' +
-    '<div class="grid3"><label>Ime djeteta<input id="n_kid"></label><label>Datum rođenja<input id="n_dob" placeholder="dd.mm.gggg"></label><label>Datum snimanja<input type="date" id="n_datum"></label></div>' +
+    '<div class="grid3"><label>Ime djeteta<input id="n_kid"></label><label>Datum rođenja<input id="n_dob" placeholder="dd.mm.gggg"></label><label>Datum fotosesije<input type="date" id="n_datum"></label></div>' +
     '<label>Napomena<textarea id="n_nap" rows="2"></textarea></label>' +
-    '<div class="actions"><button data-act="close">Odustani</button><button class="primary" id="n_save">Sačuvaj (Ctrl+Enter)</button></div>');
+    '<div class="actions"><button type="button" data-act="close">Odustani</button><button type="button" class="primary" id="n_save">Sačuvaj (Ctrl+Enter)</button></div>');
   wireProjekat('n_proj', 'n_projwrap', () => radio('n_vrsta'));
 
   const showPicked = () => {
     const c = picked && clientById(picked);
-    $('#n_picked').innerHTML = c ? '<div class="picked"><span>Dodaje se postojećoj klijentkinji: <b>' + esc(c.ime) + '</b>' + (c.izvor ? ' · ' + esc(c.izvor) : '') + '</span><button class="small" id="n_unpick">✕ Nova klijentkinja</button></div>' : '';
-    $('#n_newfields').style.display = c ? 'none' : '';
+    $('#n_picked').innerHTML = c ? '<div class="picked"><span>Dodaje se postojećoj klijentkinji: <b>' + esc(c.ime) + '</b>' + (c.izvor ? ' · ' + esc(c.izvor) : '') + '</span><button type="button" class="small" id="n_unpick">✕ Nova klijentkinja</button></div>' : '';
+    $('#n_newfields').hidden = !!c;
     const kids = c ? kidsOf(c.id) : [];
-    $('#n_oldkids').innerHTML = kids.length ? '<p class="fieldtitle">Djeca na snimanju</p><div class="checks">' + kids.map(k => '<label><input type="checkbox" class="n_oldkid" value="' + k.id + '">' + esc(kidName(k)) + '</label>').join('') + '</div><p class="fieldtitle">…ili dodajte novo dijete:</p>' : '';
+    $('#n_oldkids').innerHTML = kids.length ? '<p class="fieldtitle">Djeca na fotosesiji</p><div class="checks">' + kids.map(k => '<label><input type="checkbox" class="n_oldkid" value="' + esc(k.id) + '">' + esc(kidName(k)) + '</label>').join('') + '</div><p class="fieldtitle">…ili dodajte novo dijete:</p>' : '';
     if (c) $('#n_match').innerHTML = '';
     const u = $('#n_unpick'); if (u) u.onclick = () => { picked = null; showPicked(); $('#n_ime').focus(); };
   };
@@ -547,18 +686,17 @@ function openQuick() {
     if (picked) return;
     const q = val('n_ime').toLowerCase();
     const m = q.length < 2 ? [] : db.clients.filter(c => (c.ime || '').toLowerCase().includes(q) || (c.instagram || '').toLowerCase().includes(q)).sort(byName).slice(0, 6);
-    $('#n_match').innerHTML = m.length ? '<span class="muted" style="font-size:13px">Već postoji?</span>' + m.map(c => '<button data-pick="' + c.id + '">' + esc(c.ime) + (c.instagram ? ' @' + esc(c.instagram) : '') + '</button>').join('') : '';
+    $('#n_match').innerHTML = m.length ? '<span class="muted" style="font-size:13px">Već postoji?</span>' + m.map(c => '<button type="button" data-pick="' + esc(c.id) + '">' + esc(c.ime) + (c.instagram ? ' @' + esc(c.instagram) : '') + '</button>').join('') : '';
   });
   $('#n_match').addEventListener('click', e => { const b = e.target.closest('[data-pick]'); if (!b) return; picked = b.dataset.pick; $('#n_ime').value = clientById(picked).ime; showPicked(); });
 
   const save = () => {
     const ime = val('n_ime');
-    if (!ime) { alert('Upišite ime.'); $('#n_ime').focus(); return; }
+    if (!ime) { toast('Upišite ime klijentkinje.', true); $('#n_ime').focus(); return; }
     const dob = parseDob(val('n_dob'));
-    if (dob === null) { alert('Datum rođenja: upišite kao 16.06.2025, ili samo mjesec 06.2025, ili godinu 2025.'); $('#n_dob').focus(); return; }
+    if (dob === null) { toast(DOB_ERR, true); $('#n_dob').focus(); return; }
     const vrsta = radio('n_vrsta');
-    let proj = vrsta === 'Projekat' ? val('n_proj') : '';
-    if (proj === '__novi') proj = '';
+    const proj = vrsta === 'Projekat' ? readProjekat('n_proj') : '';
     let cid = picked;
     if (!cid) {
       cid = uid();
@@ -585,22 +723,22 @@ function openClient(id) {
     '<div class="checks"><label><input type="checkbox" id="c_viber"' + (c.viber ? ' checked' : '') + '>Viber</label><label><input type="checkbox" id="c_wa"' + (c.whatsapp ? ' checked' : '') + '>WhatsApp</label></div>' +
     '<div class="grid2"><label>Izvor prve prijave<select id="c_izvor">' + selectOpts(IZVORI, c.izvor, '—') + '</select></label><label>Jezik komunikacije<select id="c_jezik">' + selectOpts(JEZICI, c.jezik, '—') + '</select></label></div>' +
     '<label>Napomena<textarea id="c_nap" rows="3">' + esc(c.napomena) + '</textarea></label>' +
-    '<div class="actions">' + (isNew ? '' : '<button class="danger left" data-act="delClient" data-id="' + id + '">Obriši klijentkinju</button>') + '<button data-act="close">Zatvori</button><button class="primary" id="c_save">Sačuvaj</button></div>';
+    '<div class="actions">' + (isNew ? '' : '<button type="button" class="danger left" data-act="delClient" data-id="' + esc(id) + '">Obriši klijentkinju</button>') + '<button type="button" data-act="close">Zatvori</button><button type="button" class="primary" id="c_save">Sačuvaj</button></div>';
   if (!isNew) {
     const kids = kidsOf(id);
-    h += '<div class="section"><h2>Djeca</h2>' + (kids.length ? '<table><tr><th>Ime</th><th>Datum rođenja</th><th>Napomena</th></tr>' + kids.map(k => '<tr class="click" data-act="child" data-id="' + k.id + '"><td>' + esc(kidName(k)) + '</td><td>' + (fmt(k.dob) || '<span class="muted">—</span>') + (k.dobNapomena ? ' <span class="muted">(' + esc(k.dobNapomena) + ')</span>' : '') + '</td><td>' + esc(k.napomena) + '</td></tr>').join('') + '</table>' : '<p class="muted">Nema upisane djece.</p>') +
-      '<div class="actions"><button data-act="newChild" data-id="' + id + '">+ Dodaj dijete</button></div></div>';
+    h += '<div class="section"><h2 style="font-family:var(--sans);font-size:16px;font-weight:700">Djeca</h2>' + (kids.length ? table('<tr><th>Ime</th><th>Datum rođenja</th><th>Napomena</th></tr>' + kids.map(k => '<tr class="click" data-act="child" data-id="' + esc(k.id) + '"><td>' + esc(kidName(k)) + '</td><td>' + (fmt(k.dob) || '<span class="muted">—</span>') + (k.dobNapomena ? ' <span class="muted">(' + esc(k.dobNapomena) + ')</span>' : '') + '</td><td>' + esc(k.napomena) + '</td></tr>').join('')) : '<p class="muted">Nema upisane djece.</p>') +
+      '<div class="actions"><button type="button" data-act="newChild" data-id="' + esc(id) + '">+ Dodaj dijete</button></div></div>';
     const sh = shootsOf(id).sort((a, b) => (b.datum || '').localeCompare(a.datum || ''));
-    h += '<div class="section"><h2>Snimanja</h2>' + (sh.length ? '<table><tr><th>Datum</th><th>Vrsta</th><th>Status</th><th class="num">Iznos</th><th>Foto-knjiga</th></tr>' + sh.map(s => '<tr class="click" data-act="shoot" data-id="' + s.id + '"><td>' + (fmt(s.datum) || '—') + (s.izTabele ? ' <span class="tag">iz tabele</span>' : '') + '</td><td>' + esc(vrstaLabel(s)) + '</td><td>' + statusTag(s) + '</td><td class="num">' + (s.iznos === '' || s.iznos == null ? '' : eur(Number(s.iznos))) + '</td><td>' + knjigaTag(s) + '</td></tr>').join('') + '</table>' : '<p class="muted">Nema snimanja.</p>') +
-      '<div class="actions"><button data-act="newShoot" data-id="' + id + '">+ Novo snimanje</button></div></div>';
+    h += '<div class="section"><h2 style="font-family:var(--sans);font-size:16px;font-weight:700">Fotosesije</h2>' + (sh.length ? table('<tr><th>Datum</th><th>Vrsta</th><th>Status</th><th class="num">Iznos</th><th>Foto-knjiga</th></tr>' + sh.map(s => '<tr class="click" data-act="shoot" data-id="' + esc(s.id) + '"><td>' + (fmt(s.datum) || '—') + (s.izTabele ? ' <span class="tag">iz tabele</span>' : '') + '</td><td>' + esc(vrstaLabel(s)) + '</td><td>' + statusTag(s) + '</td><td class="num">' + (hasIznos(s) ? eur(Number(s.iznos)) : '') + '</td><td>' + knjigaTag(s) + '</td></tr>').join('')) : '<p class="muted">Nema fotosesija.</p>') +
+      '<div class="actions"><button type="button" data-act="newShoot" data-id="' + esc(id) + '">+ Nova fotosesija</button></div></div>';
   }
   openModal(h);
   $('#c_save').onclick = () => {
     const ime = val('c_ime');
-    if (!ime) { alert('Upišite ime.'); return; }
+    if (!ime) { toast('Upišite ime.', true); return; }
     const data = { ime, instagram: cleanIg(val('c_ig')), telefon: val('c_tel'), telegram: val('c_tg'), viber: chk('c_viber'), whatsapp: chk('c_wa'), izvor: val('c_izvor'), jezik: val('c_jezik'), napomena: val('c_nap') };
     if (isNew) { const nid = uid(); db.clients.push(Object.assign({ id: nid, created: iso(new Date()) }, data)); commit(); openClient(nid); }
-    else { Object.assign(c, data); commit(); openClient(id); }
+    else { putRec('clients', Object.assign({}, clientById(id) || c, data)); commit(); openClient(id); }
     toast('Sačuvano ✓');
   };
 }
@@ -609,42 +747,43 @@ function openClient(id) {
 function openChild(id, clientId) {
   const k = id ? db.children.find(x => x.id === id) : { ime: '', dob: '', dobNapomena: '', napomena: '', clientId };
   if (!k) return;
-  openModal('<h2>' + (id ? 'Dijete: ' + esc(kidName(k)) : 'Novo dijete') + '</h2><p class="hint">Klijentkinja: ' + esc((clientById(k.clientId) || {}).ime) + '</p>' +
+  openModal('<h2>' + (id ? esc(kidName(k)) : 'Novo dijete') + '</h2><p class="hint">Klijentkinja: ' + esc((clientById(k.clientId) || {}).ime) + '</p>' +
     '<div class="grid2"><label>Ime<input id="k_ime" value="' + esc(k.ime) + '" autofocus></label><label>Datum rođenja<input id="k_dob" value="' + esc(dobInput(k.dob)) + '" placeholder="16.06.2025 · ili 06.2025 · ili 2025"></label></div>' +
     '<label>Napomena o datumu (npr. iz stare tabele)<input id="k_dobnap" value="' + esc(k.dobNapomena) + '"></label>' +
     '<label>Napomena<input id="k_nap" value="' + esc(k.napomena) + '"></label>' +
-    '<div class="actions">' + (id ? '<button class="danger left" data-act="delChild" data-id="' + id + '">Obriši</button>' : '') + '<button data-act="client" data-id="' + k.clientId + '">Nazad</button><button class="primary" id="k_save">Sačuvaj</button></div>');
+    '<div class="actions">' + (id ? '<button type="button" class="danger left" data-act="delChild" data-id="' + esc(id) + '">Obriši</button>' : '') + '<button type="button" data-act="client" data-id="' + esc(k.clientId) + '">Nazad</button><button type="button" class="primary" id="k_save">Sačuvaj</button></div>');
   $('#k_save').onclick = () => {
     const dob = parseDob(val('k_dob'));
-    if (dob === null) { alert('Datum rođenja: upišite kao 16.06.2025, ili samo mjesec 06.2025, ili godinu 2025.'); return; }
+    if (dob === null) { toast(DOB_ERR, true); return; }
     const data = { ime: val('k_ime'), dob, dobNapomena: val('k_dobnap'), napomena: val('k_nap') };
-    if (!data.ime && !data.dob) { alert('Upišite ime ili datum rođenja.'); return; }
-    if (id) Object.assign(k, data); else db.children.push(Object.assign({ id: uid(), clientId }, data));
+    if (!data.ime && !data.dob && !data.dobNapomena) { toast('Upišite ime ili datum rođenja.', true); return; }
+    if (id) putRec('children', Object.assign({}, db.children.find(x => x.id === id) || k, data));
+    else db.children.push(Object.assign({ id: uid(), clientId }, data));
     commit(); openClient(k.clientId); toast('Sačuvano ✓');
   };
 }
 
-/* Snimanje */
+/* Fotosesija */
 function openShoot(id, clientId) {
   const s = id ? db.shoots.find(x => x.id === id) : { clientId, childIds: [], datum: '', vrsta: '', projekat: '', paket: '', iznos: '', status: 'Upit', datumIzbora: '', knjiga: '', knjigaModel: '', graviranje: false, recenzija: false, napomena: '', izTabele: false };
   if (!s) return;
   const c = clientById(s.clientId) || {};
   const kids = kidsOf(s.clientId);
-  openModal('<h2>Snimanje — ' + esc(c.ime) + '</h2>' + (s.izTabele ? '<p class="hint"><span class="tag">iz tabele</span> Preneseno iz stare tabele; datum, iznos i status nisu bili upisani.</p>' : '') +
-    (kids.length ? '<p class="fieldtitle">Djeca</p><div class="checks">' + kids.map(k => '<label><input type="checkbox" class="s_kid" value="' + k.id + '"' + ((s.childIds || []).includes(k.id) ? ' checked' : '') + '>' + esc(kidName(k)) + '</label>').join('') + '</div>' : '') +
-    '<div class="grid3"><label>Datum snimanja<input type="date" id="s_datum" value="' + esc(s.datum) + '"></label><label>Vrsta<select id="s_vrsta">' + selectOpts(VRSTE, s.vrsta, '—') + '</select></label><label id="s_projwrap">Projekat' + projektSelect('s_proj', s.projekat) + '</label></div>' +
+  openModal('<h2>Fotosesija — ' + esc(c.ime) + '</h2>' + (s.izTabele ? '<p class="hint"><span class="tag">iz tabele</span> Prenesena iz stare tabele; datum i status nisu bili upisani.</p>' : '') +
+    (kids.length ? '<p class="fieldtitle">Djeca</p><div class="checks">' + kids.map(k => '<label><input type="checkbox" class="s_kid" value="' + esc(k.id) + '"' + ((s.childIds || []).includes(k.id) ? ' checked' : '') + '>' + esc(kidName(k)) + '</label>').join('') + '</div>' : '') +
+    '<div class="grid3"><label>Datum fotosesije<input type="date" id="s_datum" value="' + esc(s.datum) + '"></label><label>Vrsta<select id="s_vrsta">' + selectOpts(VRSTE, s.vrsta, '—') + '</select></label><label id="s_projwrap">Projekat' + projektSelect('s_proj', s.projekat) + '</label></div>' +
     '<div class="grid3"><label>Paket<input id="s_paket" value="' + esc(s.paket) + '"></label><label>Iznos (€)<input type="number" min="0" step="1" id="s_iznos" value="' + esc(s.iznos) + '"></label><label>Status<select id="s_status">' + selectOpts(STATUSI, s.status, '—') + '</select></label></div>' +
-    '<div class="grid3"><label>Datum izbora fotografija<input type="date" id="s_izbor" value="' + esc(s.datumIzbora) + '"></label><label>Rok predaje (automatski)<input id="s_rok" disabled></label><label style="display:flex;align-items:flex-end;gap:6px;color:var(--ink);font-size:15px;padding-bottom:8px"><input type="checkbox" id="s_rec" style="width:auto"' + (s.recenzija ? ' checked' : '') + '>Recenzija dobijena</label></div>' +
+    '<div class="grid3"><label>Datum izbora fotografija<input type="date" id="s_izbor" value="' + esc(s.datumIzbora) + '"></label><label>Rok predaje (automatski)<input id="s_rok" disabled></label><label class="inline"><input type="checkbox" id="s_rec"' + (s.recenzija ? ' checked' : '') + '>Recenzija dobijena</label></div>' +
     '<div class="grid3"><label>Foto-knjiga<select id="s_knjiga"><option value="">nije ponuđena</option><option value="ponudjena"' + (s.knjiga === 'ponudjena' ? ' selected' : '') + '>ponuđena</option><option value="kupljena"' + (s.knjiga === 'kupljena' ? ' selected' : '') + '>kupljena</option></select></label>' +
     '<label id="s_modelwrap">Model<select id="s_model"><option value="">—</option>' + Object.keys(KNJIGE).map(m => '<option value="' + m + '"' + (m === s.knjigaModel ? ' selected' : '') + '>' + m + ' — ' + KNJIGE[m] + ' €</option>').join('') + '</select></label>' +
-    '<label id="s_gravwrap" style="display:flex;align-items:flex-end;gap:6px;color:var(--ink);font-size:15px;padding-bottom:8px"><input type="checkbox" id="s_grav" style="width:auto"' + (s.graviranje ? ' checked' : '') + '>Graviranje +5 € <span id="s_kcij" class="muted"></span></label></div>' +
+    '<label class="inline" id="s_gravwrap"><input type="checkbox" id="s_grav"' + (s.graviranje ? ' checked' : '') + '>Graviranje +5 € <span id="s_kcij" class="muted"></span></label></div>' +
     '<label>Napomena<textarea id="s_nap" rows="3">' + esc(s.napomena) + '</textarea></label>' +
-    '<div class="actions">' + (id ? '<button class="danger left" data-act="delShoot" data-id="' + id + '">Obriši snimanje</button>' : '') + '<button data-act="client" data-id="' + s.clientId + '">Kartica klijentkinje</button><button data-act="close">Zatvori</button><button class="primary" id="s_save">Sačuvaj</button></div>');
+    '<div class="actions">' + (id ? '<button type="button" class="danger left" data-act="delShoot" data-id="' + esc(id) + '">Obriši fotosesiju</button>' : '') + '<button type="button" data-act="client" data-id="' + esc(s.clientId) + '">Kartica klijentkinje</button><button type="button" data-act="close">Zatvori</button><button type="button" class="primary" id="s_save">Sačuvaj</button></div>');
   wireProjekat('s_proj', 's_projwrap', () => val('s_vrsta'));
   const upd = () => {
     const tmp = { vrsta: val('s_vrsta'), datum: val('s_datum'), datumIzbora: val('s_izbor') };
     const r = rokOf(tmp);
-    $('#s_rok').value = r ? fmt(r) + ' (' + rokText(rokLeft(r)) + ')' : (tmp.vrsta === 'Događaj' ? 'upišite datum snimanja' : 'upišite datum izbora');
+    $('#s_rok').value = r ? fmt(r) + ' (' + rokText(rokLeft(r)) + ')' : (tmp.vrsta === 'Događaj' ? 'upišite datum fotosesije' : 'upišite datum izbora');
     const kn = val('s_knjiga');
     $('#s_modelwrap').style.visibility = kn ? '' : 'hidden';
     $('#s_gravwrap').style.visibility = kn ? '' : 'hidden';
@@ -654,44 +793,50 @@ function openShoot(id, clientId) {
   upd();
   $('#modalBox').addEventListener('input', upd); $('#modalBox').addEventListener('change', upd);
   $('#s_save').onclick = () => {
-    let proj = val('s_vrsta') === 'Projekat' ? val('s_proj') : '';
-    if (proj === '__novi') proj = '';
+    const vrsta = val('s_vrsta');
     const iz = val('s_iznos');
     const kn = val('s_knjiga');
     const data = {
       childIds: [...document.querySelectorAll('.s_kid:checked')].map(x => x.value),
-      datum: val('s_datum'), vrsta: val('s_vrsta'), projekat: proj, paket: val('s_paket'),
+      datum: val('s_datum'), vrsta, projekat: vrsta === 'Projekat' ? readProjekat('s_proj') : '', paket: val('s_paket'),
       iznos: iz === '' ? '' : Number(iz), status: val('s_status'), datumIzbora: val('s_izbor'),
       knjiga: kn, knjigaModel: kn ? val('s_model') : '', graviranje: kn ? chk('s_grav') : false,
       recenzija: chk('s_rec'), napomena: val('s_nap')
     };
-    if (id) Object.assign(s, data);
+    if (id) putRec('shoots', Object.assign({}, db.shoots.find(x => x.id === id) || s, data));
     else db.shoots.push(Object.assign({ id: uid(), clientId: s.clientId, izTabele: false, created: iso(new Date()) }, data));
     commit(); closeModal(); toast('Sačuvano ✓');
   };
 }
 
 /* ---------- Kopija ---------- */
-function backup() {
-  db.lastBackup = new Date().toISOString(); db.changes = 0; persist();
-  const blob = new Blob([JSON.stringify(db, null, 1)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'foto-crm-kopija-' + iso(new Date()) + '.json';
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  render(); toast('Kopija sačuvana u „Preuzimanja“ ✓');
+async function backup() {
+  const data = JSON.stringify(exportObj(), null, 1);
+  const filename = 'foto-crm-kopija-' + iso(new Date()) + '.json';
+  if (downloads) {
+    try { await downloads.save({ filename, data }); }
+    catch (e) {
+      if (e && e.code === 'declined') return;
+      toast('Kopija nije sačuvana: ' + (e && e.message || 'greška'), true); return;
+    }
+  } else if (mode === 'local') {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+    a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  } else { toast('Preuzimanje fajla nije dostupno u ovom prikazu.', true); return; }
+  db.lastBackup = new Date().toISOString(); db.changes = 0;
+  persist(); render(); toast('Kopija sačuvana ✓');
 }
 function importFile(file) {
   const r = new FileReader();
   r.onload = () => {
     let d;
-    try { d = JSON.parse(r.result); } catch (e) { alert('Fajl nije ispravan.'); return; }
-    if (!d || !Array.isArray(d.clients) || !Array.isArray(d.shoots)) { alert('Ovo nije fajl Foto CRM-a.'); return; }
-    const msg = 'U fajlu: ' + d.clients.length + ' klijentkinja, ' + (d.children || []).length + ' djece, ' + d.shoots.length + ' snimanja.\n\n' +
-      (db.clients.length ? 'PAŽNJA: trenutni podaci (' + db.clients.length + ' klijentkinja) biće ZAMIJENJENI.\n\n' : '') + 'Nastaviti?';
-    if (!confirm(msg)) return;
-    db = normalize(d); persist(); tab = 'rodjendani'; render(); toast('Podaci učitani ✓');
+    try { d = JSON.parse(r.result); } catch (e) { toast('Fajl nije ispravan JSON.', true); return; }
+    if (!d || !Array.isArray(d.clients) || !Array.isArray(d.shoots)) { toast('Ovo nije fajl Foto CRM-a.', true); return; }
+    const msg = 'U fajlu: ' + d.clients.length + ' klijentkinja, ' + (d.children || []).length + ' djece, ' + nFoto(d.shoots.length) + '.' +
+      (db.clients.length ? '\n\nPAŽNJA: trenutni podaci (' + db.clients.length + ' klijentkinja) biće ZAMIJENJENI.' : '');
+    ask(msg, 'Vrati podatke', () => { db = normalize(d); persist(); tab = 'rodjendani'; render(); toast('Podaci učitani ✓'); });
   };
   r.readAsText(file);
 }
@@ -699,7 +844,7 @@ function importFile(file) {
 /* ---------- Događaji ---------- */
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-tab],[data-act]');
-  if (!t) { if (e.target === $('#modal')) { /* klik van prozora ne zatvara, da se ne izgubi unos */ } return; }
+  if (!t || !loaded) return;
   if (t.dataset.tab) { tab = t.dataset.tab; ui.q = ''; render(); window.scrollTo(0, 0); return; }
   const id = t.dataset.id;
   switch (t.dataset.act) {
@@ -710,46 +855,48 @@ document.addEventListener('click', e => {
     case 'newShoot': openShoot(null, id); break;
     case 'child': openChild(id); break;
     case 'newChild': openChild(null, id); break;
-    case 'bdayDone': db.bdayDone[t.dataset.key] = iso(new Date()); commit(); break;
-    case 'bdayUndo': delete db.bdayDone[t.dataset.key]; commit(); break;
+    case 'bdayDone': db.bdayDone = Object.assign({}, db.bdayDone, { [t.dataset.key]: iso(new Date()) }); commit(); break;
+    case 'bdayUndo': { const b = Object.assign({}, db.bdayDone); delete b[t.dataset.key]; db.bdayDone = b; commit(); break; }
     case 'backup': backup(); break;
     case 'delClient': {
-      const c = clientById(id);
-      if (!confirm('Obrisati klijentkinju „' + c.ime + '“ zajedno sa djecom (' + kidsOf(id).length + ') i snimanjima (' + shootsOf(id).length + ')?')) return;
-      db.children = db.children.filter(k => k.clientId !== id); db.shoots = db.shoots.filter(s => s.clientId !== id); db.clients = db.clients.filter(x => x.id !== id);
-      closeModal(); commit(); break;
+      const c = clientById(id); if (!c) return;
+      ask('Obrisati klijentkinju „' + c.ime + '“ zajedno sa djecom (' + kidsOf(id).length + ') i fotosesijama (' + shootsOf(id).length + ')?', 'Obriši', () => {
+        db.children = db.children.filter(k => k.clientId !== id); db.shoots = db.shoots.filter(s => s.clientId !== id); db.clients = db.clients.filter(x => x.id !== id);
+        closeModal(); commit(); toast('Obrisano');
+      });
+      break;
     }
     case 'delChild': {
-      const k = db.children.find(x => x.id === id);
-      if (!confirm('Obrisati dijete „' + kidName(k) + '“?')) return;
-      db.children = db.children.filter(x => x.id !== id); db.shoots.forEach(s => { s.childIds = (s.childIds || []).filter(x => x !== id); });
-      commit(); openClient(k.clientId); break;
+      const k = db.children.find(x => x.id === id); if (!k) return;
+      ask('Obrisati dijete „' + kidName(k) + '“?', 'Obriši', () => {
+        db.children = db.children.filter(x => x.id !== id);
+        db.shoots = db.shoots.map(s => (s.childIds || []).includes(id) ? Object.assign({}, s, { childIds: s.childIds.filter(x => x !== id) }) : s);
+        commit(); openClient(k.clientId);
+      });
+      break;
     }
     case 'delShoot': {
-      if (!confirm('Obrisati ovo snimanje?')) return;
-      const s = db.shoots.find(x => x.id === id);
-      db.shoots = db.shoots.filter(x => x.id !== id); commit(); openClient(s.clientId); break;
+      const s = db.shoots.find(x => x.id === id); if (!s) return;
+      ask('Obrisati ovu fotosesiju?', 'Obriši', () => { db.shoots = db.shoots.filter(x => x.id !== id); commit(); openClient(s.clientId); });
+      break;
     }
   }
 });
-document.addEventListener('input', e => {
-  if (e.target.id === 'q') { ui.q = e.target.value; ui.focusSearch = true; render(); }
-});
+document.addEventListener('input', e => { if (e.target.id === 'q') { ui.q = e.target.value; render(); } });
 document.addEventListener('change', e => {
   const id = e.target.id;
   if (id === 'fStatus' || id === 'fVrsta' || id === 'fGod') { ui[id] = e.target.value; render(); }
   if (id === 'statGod') { ui.statGod = e.target.value; render(); }
-  if (id === 'importFile' && e.target.files[0]) importFile(e.target.files[0]);
+  if (id === 'importFile' && e.target.files[0]) { importFile(e.target.files[0]); e.target.value = ''; }
 });
 document.addEventListener('keydown', e => {
-  const open = !$('#modal').classList.contains('hidden');
-  if (e.key === 'Escape' && open) closeModal();
-  if (!open && (e.key === 'n' || e.key === 'N') && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && !e.ctrlKey && !e.metaKey) { e.preventDefault(); openQuick(); }
+  if (e.key === 'Escape') { if (!$('#confirm').hidden) $('#confirm').hidden = true; else if (!$('#modal').hidden) closeModal(); return; }
+  const open = !$('#modal').hidden || !$('#confirm').hidden;
+  if (!open && loaded && (e.key === 'n' || e.key === 'N') && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); openQuick(); }
 });
-$('#btnNew').onclick = openQuick;
-window.addEventListener('storage', e => { if (e.key === KEY) { db = load(); render(); } });
+$('#btnNew').onclick = () => { if (loaded) openQuick(); };
+window.addEventListener('storage', e => { if (mode === 'local' && e.key === LOCAL_KEY) { try { db = normalize(JSON.parse(e.newValue || '{}')); } catch (x) {} render(); } });
+window.addEventListener('beforeunload', e => { if (pendingWrites) { e.preventDefault(); e.returnValue = ''; } });
 
-render();
+start();
 </script>
-</body>
-</html>
